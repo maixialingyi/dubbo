@@ -1,0 +1,2 @@
+com.my.test.spi.jdkspi.MysqlJdbcImpl
+com.my.test.spi.jdkspi.OracleJdbcImpl
