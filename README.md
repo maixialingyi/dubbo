@@ -11,7 +11,7 @@
 [![Gitter](https://badges.gitter.im/alibaba/dubbo.svg)](https://gitter.im/alibaba/dubbo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 Apache Dubbo is a high-performance, Java based open source RPC framework. Please visit [official site](http://dubbo.apache.org) for quick start and documentations, as well as [Wiki](https://github.com/apache/dubbo/wiki) for news, FAQ, and release notes.
-1
+11
 We are now collecting dubbo user info in order to help us to improve Dubbo better, pls. kindly help us by providing yours on [issue#1012: Wanted: who's using dubbo](https://github.com/apache/dubbo/issues/1012), thanks :)
 
 ## Architecture
