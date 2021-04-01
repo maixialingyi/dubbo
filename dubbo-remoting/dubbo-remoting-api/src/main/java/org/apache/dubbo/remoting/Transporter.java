@@ -27,12 +27,13 @@ import org.apache.dubbo.common.extension.SPI;
  * <a href="http://en.wikipedia.org/wiki/Client%E2%80%93server_model">Client/Server</a>
  *
  * @see org.apache.dubbo.remoting.Transporters
+ * 网络传输接口
  */
 @SPI("netty")
 public interface Transporter {
 
     /**
-     * Bind a server.
+     * Bind a server.   绑定一个服务器
      *
      * @param url     server url
      * @param handler
@@ -44,7 +45,7 @@ public interface Transporter {
     RemotingServer bind(URL url, ChannelHandler handler) throws RemotingException;
 
     /**
-     * Connect to a server.
+     * Connect to a server.   连接一个服务器，即创建一个客户端
      *
      * @param url     server url
      * @param handler

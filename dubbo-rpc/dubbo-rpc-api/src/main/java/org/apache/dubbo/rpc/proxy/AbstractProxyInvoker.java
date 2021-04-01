@@ -34,6 +34,7 @@ import java.util.concurrent.CompletionException;
 
 /**
  * This Invoker works on provider side, delegates RPC to interface implementation.
+ * 该类实现了Invoker接口，是代理invoker对象的抽象类
  */
 public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
     Logger logger = LoggerFactory.getLogger(AbstractProxyInvoker.class);

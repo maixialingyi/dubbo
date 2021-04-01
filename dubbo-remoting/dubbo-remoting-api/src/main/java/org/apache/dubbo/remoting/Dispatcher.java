@@ -23,6 +23,7 @@ import org.apache.dubbo.remoting.transport.dispatcher.all.AllDispatcher;
 
 /**
  * ChannelHandlerWrapper (SPI, Singleton, ThreadSafe)
+ * 调度器接口:所有消息都派发到线程池，包括请求，响应，连接事件，断开事件，心跳等
  */
 @SPI(AllDispatcher.NAME)
 public interface Dispatcher {
@@ -36,6 +37,7 @@ public interface Dispatcher {
      */
     @Adaptive({Constants.DISPATCHER_KEY, "dispather", "channel.handler"})
     // The last two parameters are reserved for compatibility with the old configuration
+    //保留最后两个参数是为了与旧配置兼容
     ChannelHandler dispatch(ChannelHandler handler, URL url);
 
 }

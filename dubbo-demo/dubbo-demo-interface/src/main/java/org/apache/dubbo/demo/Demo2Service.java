@@ -14,32 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.dubbo.rpc;
+package org.apache.dubbo.demo;
 
-import org.apache.dubbo.common.extension.SPI;
+import java.util.concurrent.CompletableFuture;
 
-/**
- * ExporterListener. (SPI, Singleton, ThreadSafe)
- */
-@SPI
-public interface ExporterListener {
+public interface Demo2Service {
 
-    /**
-     * The exporter exported.   暴露服务
-     *
-     * @param exporter
-     * @throws RpcException
-     * @see org.apache.dubbo.rpc.Protocol#export(Invoker)
-     */
-    void exported(Exporter<?> exporter) throws RpcException;
+    String sayHello(String name);
 
-    /**
-     * The exporter unexported.   取消暴露
-     *
-     * @param exporter
-     * @throws RpcException
-     * @see org.apache.dubbo.rpc.Exporter#unexport()
-     */
-    void unexported(Exporter<?> exporter);
+    default CompletableFuture<String> sayHelloAsync(String name) {
+        return CompletableFuture.completedFuture(sayHello(name));
+    }
 
 }

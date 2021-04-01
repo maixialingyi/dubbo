@@ -40,6 +40,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.RETRIES_KEY;
 /**
  * When invoke fails, log the initial error and retry other invokers (retry n times, which means at most n different invokers will be invoked)
  * Note that retry causes latency.
+ * 当调用失败时，记录初始错误并重试其他调用者（重试n次，这意味着最多将调用n个不同的调用者）*请注意，重试会导致延迟。
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Failover">Failover</a>
  *

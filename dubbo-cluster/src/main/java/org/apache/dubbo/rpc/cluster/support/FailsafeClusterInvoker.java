@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * When invoke fails, log the error message and ignore this error by returning an empty Result.
  * Usually used to write audit logs and other operations
- *
+ * 当调用失败时，记录错误消息并通过返回空结果忽略该错误。 *通常用于编写审核日志和其他操作
  * <a href="http://en.wikipedia.org/wiki/Fail-safe">Fail-safe</a>
  *
  */

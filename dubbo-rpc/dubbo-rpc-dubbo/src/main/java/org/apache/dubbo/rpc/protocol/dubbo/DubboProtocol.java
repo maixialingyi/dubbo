@@ -89,6 +89,7 @@ import static org.apache.dubbo.rpc.protocol.dubbo.Constants.SHARE_CONNECTIONS_KE
 
 /**
  * dubbo protocol support.
+ * 该类是dubbo协议的核心实现，其中增加了比如延迟加载等处理。 并且其中还包括了对服务暴露和服务引用的逻辑处理。
  */
 public class DubboProtocol extends AbstractProtocol {
 

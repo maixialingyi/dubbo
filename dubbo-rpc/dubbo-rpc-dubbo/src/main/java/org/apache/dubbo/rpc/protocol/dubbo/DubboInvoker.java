@@ -58,14 +58,25 @@ import static org.apache.dubbo.rpc.Constants.TOKEN_KEY;
  */
 public class DubboInvoker<T> extends AbstractInvoker<T> {
 
+    /**
+     * 信息交换客户端数组
+     */
     private final ExchangeClient[] clients;
-
+    /**
+     * 客户端数组位置
+     */
     private final AtomicPositiveInteger index = new AtomicPositiveInteger();
-
+    /**
+     * 版本号
+     */
     private final String version;
-
+    /**
+     * 销毁锁
+     */
     private final ReentrantLock destroyLock = new ReentrantLock();
-
+    /**
+     * Invoker对象集合
+     */
     private final Set<Invoker<?>> invokers;
 
     public DubboInvoker(Class<T> serviceType, URL url, ExchangeClient[] clients) {
@@ -82,22 +93,29 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
 
     @Override
     protected Result doInvoke(final Invocation invocation) throws Throwable {
+        // rpc会话域
         RpcInvocation inv = (RpcInvocation) invocation;
+        // 获得方法名
         final String methodName = RpcUtils.getMethodName(invocation);
+        // 把path放入到附加值中
         inv.setAttachment(PATH_KEY, getUrl().getPath());
+        // 把版本号放入到附加值
         inv.setAttachment(VERSION_KEY, version);
-
+        // 当前的客户端
         ExchangeClient currentClient;
+        // 如果数组内就一个客户端，则直接取出
         if (clients.length == 1) {
             currentClient = clients[0];
         } else {
+            // 取模轮询 从数组中取，当取到最后一个时，从头开始
             currentClient = clients[index.getAndIncrement() % clients.length];
         }
         try {
+            // 是否是单向发送
             boolean isOneway = RpcUtils.isOneway(getUrl(), invocation);
             int timeout = calculateTimeout(invocation, methodName);
             invocation.put(TIMEOUT_KEY, timeout);
-            if (isOneway) {
+            if (isOneway) {//单向发送
                 boolean isSent = getUrl().getMethodParameter(methodName, Constants.SENT_KEY, false);
                 currentClient.send(inv, isSent);
                 return AsyncRpcResult.newDefaultAsyncResult(invocation);
@@ -118,12 +136,17 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
         }
     }
 
+    /**
+     * 该方法是检查服务端是否存活。
+     * @return
+     */
     @Override
     public boolean isAvailable() {
         if (!super.isAvailable()) {
             return false;
         }
         for (ExchangeClient client : clients) {
+            // 只要有一个客户端连接并且不是只读，则表示存活
             if (client.isConnected() && !client.hasAttribute(Constants.CHANNEL_ATTRIBUTE_READONLY_KEY)) {
                 //cannot write == not Available ?
                 return true;

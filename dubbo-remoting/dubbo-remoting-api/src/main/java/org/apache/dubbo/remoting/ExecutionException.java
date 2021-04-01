@@ -19,7 +19,7 @@ package org.apache.dubbo.remoting;
 import java.net.InetSocketAddress;
 
 /**
- * ReceiveException
+ * ReceiveException  远程通信的执行异常
  *
  * @export
  */

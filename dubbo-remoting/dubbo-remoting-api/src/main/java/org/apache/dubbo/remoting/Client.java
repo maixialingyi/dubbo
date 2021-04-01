@@ -28,10 +28,11 @@ import org.apache.dubbo.common.Resetable;
 public interface Client extends Endpoint, Channel, Resetable, IdleSensible {
 
     /**
-     * reconnect.
+     * reconnect.  重连
      */
     void reconnect() throws RemotingException;
 
+    //重置，不推荐使用
     @Deprecated
     void reset(org.apache.dubbo.common.Parameters parameters);
 

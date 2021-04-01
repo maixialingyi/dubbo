@@ -35,7 +35,7 @@ public interface Invocation {
     String getProtocolServiceKey();
 
     /**
-     * get method name.
+     * get method name.   获得方法名称
      *
      * @return method name.
      * @serial
@@ -50,7 +50,7 @@ public interface Invocation {
     String getServiceName();
 
     /**
-     * get parameter types.
+     * get parameter types.   获得参数类型
      *
      * @return parameter types.
      * @serial
@@ -69,7 +69,7 @@ public interface Invocation {
     }
 
     /**
-     * get arguments.
+     * get arguments.   获得参数
      *
      * @return arguments.
      * @serial
@@ -77,7 +77,7 @@ public interface Invocation {
     Object[] getArguments();
 
     /**
-     * get attachments.
+     * get attachments.   获得附加值集合
      *
      * @return attachments.
      * @serial
@@ -128,7 +128,7 @@ public interface Invocation {
     /**
      * get the invoker in current context.
      *
-     * @return invoker.
+     * @return invoker.   获得当前上下文的invoker
      * @transient
      */
     Invoker<?> getInvoker();

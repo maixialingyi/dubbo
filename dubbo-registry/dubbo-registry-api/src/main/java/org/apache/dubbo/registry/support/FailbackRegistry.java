@@ -48,26 +48,30 @@ public abstract class FailbackRegistry extends AbstractRegistry {
 
     /*  retry task map */
 
+    //注册失败的URL集合
     private final ConcurrentMap<URL, FailedRegisteredTask> failedRegistered = new ConcurrentHashMap<URL, FailedRegisteredTask>();
-
+    // 取消注册失败的URL集合
     private final ConcurrentMap<URL, FailedUnregisteredTask> failedUnregistered = new ConcurrentHashMap<URL, FailedUnregisteredTask>();
-
+    // 订阅失败的监听器集合
     private final ConcurrentMap<Holder, FailedSubscribedTask> failedSubscribed = new ConcurrentHashMap<Holder, FailedSubscribedTask>();
-
+    // 取消订阅失败的监听器集合
     private final ConcurrentMap<Holder, FailedUnsubscribedTask> failedUnsubscribed = new ConcurrentHashMap<Holder, FailedUnsubscribedTask>();
-
+    // 通知失败的URL集合
     private final ConcurrentMap<Holder, FailedNotifiedTask> failedNotified = new ConcurrentHashMap<Holder, FailedNotifiedTask>();
 
     /**
      * The time in milliseconds the retryExecutor will wait
+     * // 失败重试定时器，定时去检查是否有请求失败的，如有，无限次重试。
      */
     private final int retryPeriod;
 
     // Timer for failure retry, regular check if there is a request for failure, and if there is, an unlimited retry
+    // 失败重试计时器，定期检查是否有失败请求，是否有无限次重试
     private final HashedWheelTimer retryTimer;
 
     public FailbackRegistry(URL url) {
         super(url);
+        //从url中读取重试频率，如果为空，则默认5000ms
         this.retryPeriod = url.getParameter(REGISTRY_RETRY_PERIOD_KEY, DEFAULT_REGISTRY_RETRY_PERIOD);
 
         // since the retry task will not be very much. 128 ticks is enough.
@@ -232,10 +236,13 @@ public abstract class FailbackRegistry extends AbstractRegistry {
             return;
         }
         super.register(url);
+        //从失败注册集合中删除
         removeFailedRegistered(url);
+        //从失败取消注册集合中删除
         removeFailedUnregistered(url);
         try {
             // Sending a registration request to the server side
+            // 向注册中心发送一个注册请求   nacos zk底层实现
             doRegister(url);
         } catch (Exception e) {
             Throwable t = e;
@@ -255,6 +262,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
             }
 
             // Record a failed registration request to a failed list, retry regularly
+            // 放入失败注册集合
             addFailedRegistered(url);
         }
     }
@@ -394,9 +402,11 @@ public abstract class FailbackRegistry extends AbstractRegistry {
             throw new IllegalArgumentException("notify listener == null");
         }
         try {
+            // 通知 url 数据变化
             doNotify(url, listener, urls);
         } catch (Exception t) {
             // Record a failed registration request to a failed list, retry regularly
+            // 放入失败的缓存中，重试
             addFailedNotified(url, listener, urls);
             logger.error("Failed to notify for subscribe " + url + ", waiting for retry, cause: " + t.getMessage(), t);
         }
@@ -409,6 +419,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
     @Override
     protected void recover() throws Exception {
         // register
+        // register 恢复注册，添加到 `failedRegistered` ，定时重试
         Set<URL> recoverRegistered = new HashSet<URL>(getRegistered());
         if (!recoverRegistered.isEmpty()) {
             if (logger.isInfoEnabled()) {
@@ -419,6 +430,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
             }
         }
         // subscribe
+        // subscribe 恢复订阅，添加到 `failedSubscribed` ，定时重试
         Map<URL, Set<NotifyListener>> recoverSubscribed = new HashMap<URL, Set<NotifyListener>>(getSubscribed());
         if (!recoverSubscribed.isEmpty()) {
             if (logger.isInfoEnabled()) {

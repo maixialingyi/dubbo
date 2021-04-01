@@ -25,12 +25,14 @@ import java.util.Map;
  */
 public abstract class SerializableClassRegistry {
 
-
+    /**
+     * 可序列化类类的集合
+     */
     private static final Map<Class<?>, Object> REGISTRATIONS = new LinkedHashMap<>();
 
     /**
      * only supposed to be called at startup time
-     *
+     * 把可序列化的类加入到集合
      * @param clazz object type
      */
     public static void registerClass(Class<?> clazz) {
@@ -52,7 +54,7 @@ public abstract class SerializableClassRegistry {
 
     /**
      * get registered classes
-     *
+     * 获得可序列化的类的集合
      * @return class serializer
      * */
     public static Map<Class<?>, Object> getRegisteredClasses() {

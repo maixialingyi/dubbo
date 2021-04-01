@@ -19,6 +19,10 @@ package org.apache.dubbo.remoting;
 
 public interface Decodeable {
 
+    /**
+     * 1.校验，判断是否可以解码，并且对解码失败会有一些消息设置
+     * 2.被用来message核对用的
+     */
     public void decode() throws Exception;
 
 }

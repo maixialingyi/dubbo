@@ -53,9 +53,11 @@ public abstract class AbstractRegistryFactory implements RegistryFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRegistryFactory.class);
 
     // The lock for the acquisition process of the registry
+    //注册表获取过程的锁
     protected static final ReentrantLock LOCK = new ReentrantLock();
 
     // Registry Collection Map<RegistryAddress, Registry>
+    // 注册对象列表
     protected static final Map<String, Registry> REGISTRIES = new HashMap<>();
 
     private static final AtomicBoolean destroyed = new AtomicBoolean(false);
@@ -84,6 +86,7 @@ public abstract class AbstractRegistryFactory implements RegistryFactory {
 
     /**
      * Close all created registries
+     * 关闭所有创建的注册表
      */
     public static void destroyAll() {
         if (!destroyed.compareAndSet(false, true)) {
@@ -132,6 +135,7 @@ public abstract class AbstractRegistryFactory implements RegistryFactory {
                 return registry;
             }
             //create registry by spi/ioc
+            //创建Registry对象
             registry = createRegistry(url);
             if (registry == null) {
                 throw new IllegalStateException("Can not create registry " + url);

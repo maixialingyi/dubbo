@@ -69,31 +69,46 @@ import static org.apache.dubbo.registry.Constants.REGISTRY_FILESAVE_SYNC_KEY;
 public abstract class AbstractRegistry implements Registry {
 
     // URL address separator, used in file cache, service provider URL separation
+    // URL的地址分隔符，在缓存文件中使用，服务提供者的URL分隔
     private static final char URL_SEPARATOR = ' ';
     // URL address separated regular expression for parsing the service provider URL list in the file cache
+    // URL地址分隔正则表达式，用于解析文件缓存中服务提供者URL列表
     private static final String URL_SPLIT = "\\s+";
     // Max times to retry to save properties to local cache file
     private static final int MAX_RETRY_TIMES_SAVE_PROPERTIES = 3;
     // Log output
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     // Local disk cache, where the special key value.registries records the list of registry centers, and the others are the list of notified service providers
+    // 本地磁盘缓存，有一个特殊的key值为registies，记录的是注册中心列表，其他记录的都是服务提供者列表
     private final Properties properties = new Properties();
     // File cache timing writing
+    // 缓存写入执行器
     private final ExecutorService registryCacheExecutor = Executors.newFixedThreadPool(1, new NamedThreadFactory("DubboSaveRegistryCache", true));
     // Is it synchronized to save the file
+    // 是否同步保存文件标志
     private boolean syncSaveFile;
+    //数据版本号
     private final AtomicLong lastCacheChanged = new AtomicLong();
     private final AtomicInteger savePropertiesRetryTimes = new AtomicInteger();
+    // 已注册 URL 集合
+    // 注册的 URL 不仅仅可以是服务提供者的，也可以是服务消费者的
     private final Set<URL> registered = new ConcurrentHashSet<>();
+    // 订阅URL的监听器集合
     private final ConcurrentMap<URL, Set<NotifyListener>> subscribed = new ConcurrentHashMap<>();
+    // 某个消费者被通知的某一类型的 URL 集合
+    // 第一个key是消费者的URL，对应的就是哪个消费者。
+    // value是一个map集合，该map集合的key是分类的意思，例如providers、routes等，value就是被通知的URL集合
     private final ConcurrentMap<URL, Map<String, List<URL>>> notified = new ConcurrentHashMap<>();
+    // 注册中心 URL
     private URL registryUrl;
     // Local disk cache file
+    // 本地磁盘缓存文件，缓存注册中心的数据
     private File file;
     private boolean localCacheEnabled;
 
     public AbstractRegistry(URL url) {
         setUrl(url);
+        //是否有本地缓存
         localCacheEnabled = url.getParameter(REGISTRY_LOCAL_FILE_CACHE_ENABLED, true);
         if (localCacheEnabled) {
             // Start file save timer
@@ -112,7 +127,9 @@ public abstract class AbstractRegistry implements Registry {
             this.file = file;
             // When starting the subscription center,
             // we need to read the local cache file for future Registry fault tolerance processing.
+            // 把文件里面的数据写入properties
             loadProperties();
+            // 通知监听器，URL 变化结果
             notify(url.getBackupUrls());
         }
     }
