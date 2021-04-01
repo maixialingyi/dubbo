@@ -34,25 +34,44 @@ import static org.apache.dubbo.config.spring.util.DubboBeanUtils.registerCommonB
  * @see DubboConfigConfiguration
  * @see Ordered
  * @since 2.5.8
+ * @Import(DubboConfigConfigurationRegistrar.class)           implements ImportBeanDefinitionRegistrar
+ * 调用registerBeanDefinitions
  */
 public class DubboConfigConfigurationRegistrar implements ImportBeanDefinitionRegistrar {
 
+    //
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+        System.out.println("@EnableDubboConfig -- 配置类注入spring");
 
+        //获取配置类中@EnableDubboConfig这个注解对象
         AnnotationAttributes attributes = AnnotationAttributes.fromMap(
                 importingClassMetadata.getAnnotationAttributes(EnableDubboConfig.class.getName()));
 
         boolean multiple = attributes.getBoolean("multiple");
 
-        // Single Config Bindings
+        /**
+         * 读取配置，Single中配置类注入spring  BeanDefinition
+         *
+         * 一个配置单个属性   如：dubbo.protocol.name=dubbo
+         * DubboConfigConfiguration 定义注入spring容器中的配置类
+          */
         registerBeans(registry, DubboConfigConfiguration.Single.class);
 
+        // 一配置多属性   如: dubbo.protcols.rest.name = rest
         if (multiple) { // Since 2.6.6 https://github.com/apache/dubbo/issues/3193
             registerBeans(registry, DubboConfigConfiguration.Multiple.class);
         }
 
         // Since 2.7.6
+        /**
+         * 向spring中注册
+         * ReferenceAnnotationBeanPostProcessor.class
+         * DubboConfigAliasPostProcessor.class
+         * DubboLifecycleComponentApplicationListener.class
+         * DubboBootstrapApplicationListener.class
+         * DubboConfigDefaultPropertyValueBeanPostProcessor.class
+         */
         registerCommonBeans(registry);
     }
 }

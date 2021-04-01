@@ -30,12 +30,20 @@ import java.util.Objects;
  * and prevents the event propagation in the hierarchical {@link ApplicationContext ApplicationContexts}
  *
  * @since 2.7.5
+ * ApplicationContextAware  获取spring容器
+ * ApplicationListener      spring监听
  */
 abstract class OneTimeExecutionApplicationContextEventListener implements ApplicationListener, ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 
+    /**
+     * DubboLifecycleComponentApplicationListener    Dubbo生命周期管理
+     * DubboBootstrapApplicationListener             Dubbo启动引导器
+     * @param event
+     */
     public final void onApplicationEvent(ApplicationEvent event) {
+        System.out.println("OneTimeExecutionApplicationContextEventListener onApplicationEvent()");
         if (isOriginalEventSource(event) && event instanceof ApplicationContextEvent) {
             onApplicationContextEvent((ApplicationContextEvent) event);
         }

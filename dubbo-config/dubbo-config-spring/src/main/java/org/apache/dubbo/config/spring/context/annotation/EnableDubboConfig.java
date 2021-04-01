@@ -71,7 +71,7 @@ public @interface EnableDubboConfig {
 
     /**
      * It indicates whether binding to multiple Spring Beans.
-     *
+     * 从配置文件中解析配置文件，并实例化相关的config对象到spring 容器中
      * @return the default value is <code>true</code>
      * @revised 2.5.9
      */

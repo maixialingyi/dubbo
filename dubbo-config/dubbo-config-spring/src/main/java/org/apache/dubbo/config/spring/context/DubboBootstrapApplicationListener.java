@@ -56,6 +56,7 @@ public class DubboBootstrapApplicationListener extends OneTimeExecutionApplicati
     }
 
     private void onContextRefreshedEvent(ContextRefreshedEvent event) {
+        System.out.println("DubboBootstrapApplicationListener onContextRefreshedEvent");
         dubboBootstrap.start();
     }
 
