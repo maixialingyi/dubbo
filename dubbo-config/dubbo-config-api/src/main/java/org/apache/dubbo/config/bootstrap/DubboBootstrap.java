@@ -16,6 +16,7 @@
  */
 package org.apache.dubbo.config.bootstrap;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.config.ConfigurationUtils;
 import org.apache.dubbo.common.config.Environment;
@@ -536,7 +537,10 @@ public class DubboBootstrap extends GenericEventListener {
 
         if (logger.isInfoEnabled()) {
             logger.info(NAME + " has been initialized!");
+            logger.info(NAME +"."+configManager + ":" + JSON.toJSONString(configManager));
+
         }
+
     }
 
     private void checkGlobalConfigs() {
@@ -882,14 +886,17 @@ public class DubboBootstrap extends GenericEventListener {
         System.out.println("DubboBootstrap start()");
         if (started.compareAndSet(false, true)) {
             startup.set(false);
+            //初始化DubboBootstrap.ConfigManager
             initialize();
             if (logger.isInfoEnabled()) {
                 logger.info(NAME + " is starting...");
             }
             // 1. export Dubbo Services
+            // 组装url  生成 生成消费接口代理对象
             exportServices();
 
             // Not only provider register
+            // 注册到注册中心
             if (!isOnlyRegisterProvider() || hasExportedServices()) {
                 // 2. export MetadataService
                 exportMetadataService();
@@ -1164,6 +1171,7 @@ public class DubboBootstrap extends GenericEventListener {
     private void doRegisterServiceInstance(ServiceInstance serviceInstance) {
         // register instance only when at least one service is exported.
         if (serviceInstance.getPort() != null && serviceInstance.getPort() != -1) {
+            //发布到远程
             publishMetadataToRemote(serviceInstance);
             logger.info("Start registering instance address to registry.");
             getServiceDiscoveries().forEach(serviceDiscovery ->

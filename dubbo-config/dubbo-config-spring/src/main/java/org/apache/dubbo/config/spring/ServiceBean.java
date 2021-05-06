@@ -61,12 +61,18 @@ public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean
         this.service = service;
     }
 
+    /**
+     * 实现ApplicationContextAware，自动注入 ApplicationContext
+     */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         SpringExtensionFactory.addApplicationContext(applicationContext);
     }
 
+    /**
+     * 实现BeanNameAware 获取并设在beanName
+     */
     @Override
     public void setBeanName(String name) {
         this.beanName = name;
@@ -136,7 +142,7 @@ public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean
     }
 
     /**
-     * @param applicationEventPublisher
+     * 实现ApplicationEventPublisherAware 注入时间监听器
      * @since 2.6.5
      */
     @Override

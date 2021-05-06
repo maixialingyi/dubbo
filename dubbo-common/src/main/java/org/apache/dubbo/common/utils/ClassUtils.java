@@ -132,10 +132,7 @@ public class ClassUtils {
     }
 
     /**
-     * get class loader
-     *
-     * @param clazz
-     * @return class loader
+     *  todo 获取类加载器
      */
     public static ClassLoader getClassLoader(Class<?> clazz) {
         ClassLoader cl = null;

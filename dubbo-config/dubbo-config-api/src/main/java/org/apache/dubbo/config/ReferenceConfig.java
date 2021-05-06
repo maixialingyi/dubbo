@@ -200,10 +200,13 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
     }
 
     public synchronized T get() {
+        // 如果被销毁，则抛出异常
         if (destroyed) {
             throw new IllegalStateException("The invoker of ReferenceConfig(" + url + ") has already destroyed!");
         }
+        // 检测 代理对象ref 是否为空，为空则通过 init 方法创建
         if (ref == null) {
+            // 用于处理配置，以及调用 createProxy 生成代理类
             init();
         }
         return ref;
@@ -230,6 +233,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
     }
 
     public synchronized void init() {
+        // 如果已经初始化过，则结束
         if (initialized) {
             return;
         }
@@ -239,31 +243,37 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
             bootstrap.initialize();
             bootstrap.reference(this);
         }
-
+        // 检查并且更新配置
         checkAndUpdateSubConfigs();
-
+        // 本地存根合法性校验
         checkStubAndLocal(interfaceClass);
+        // mock合法性校验
         ConfigValidationUtils.checkMock(interfaceClass, this);
-
+        // 用来存放配置
         Map<String, String> map = new HashMap<String, String>();
         map.put(SIDE_KEY, CONSUMER_SIDE);
-
+        // 添加 协议版本、发布版本，时间戳 等信息到 map 中
         ReferenceConfigBase.appendRuntimeParameters(map);
+        // 如果是泛化调用
         if (!ProtocolUtils.isGeneric(generic)) {
             String revision = Version.getVersion(interfaceClass, version);
             if (revision != null && revision.length() > 0) {
+                // 设置版本号
                 map.put(REVISION_KEY, revision);
             }
-
+            // 获得所有方法
             String[] methods = Wrapper.getWrapper(interfaceClass).getMethodNames();
             if (methods.length == 0) {
                 logger.warn("No method found in service interface " + interfaceClass.getName());
                 map.put(METHODS_KEY, ANY_VALUE);
             } else {
+                // 把所有方法签名拼接起来放入map
                 map.put(METHODS_KEY, StringUtils.join(new HashSet<String>(Arrays.asList(methods)), COMMA_SEPARATOR));
             }
         }
+        // 加入服务接口名称
         map.put(INTERFACE_KEY, interfaceName);
+        // 添加metrics、application、module、consumer、protocol的所有信息到map
         AbstractConfig.appendParameters(map, getMetrics());
         AbstractConfig.appendParameters(map, getApplication());
         AbstractConfig.appendParameters(map, getModule());
@@ -278,11 +288,16 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
         Map<String, AsyncMethodInfo> attributes = null;
         if (CollectionUtils.isNotEmpty(getMethods())) {
             attributes = new HashMap<>();
+            // 遍历方法配置
             for (MethodConfig methodConfig : getMethods()) {
+                // 把方法配置加入map
                 AbstractConfig.appendParameters(map, methodConfig, methodConfig.getName());
+                // 生成重试的配置key
                 String retryKey = methodConfig.getName() + ".retry";
+                // 如果map中已经有该配置，则移除该配置
                 if (map.containsKey(retryKey)) {
                     String retryValue = map.remove(retryKey);
+                    // 如果配置为false，也就是不重试，则设置重试次数为0次
                     if ("false".equals(retryValue)) {
                         map.put(methodConfig.getName() + ".retries", "0");
                     }
@@ -294,17 +309,19 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
                 }
             }
         }
-
+        // 获取服务消费者 ip 地址
         String hostToRegistry = ConfigUtils.getSystemProperty(DUBBO_IP_TO_REGISTRY);
+        // 如果为空，则获取本地ip
         if (StringUtils.isEmpty(hostToRegistry)) {
             hostToRegistry = NetUtils.getLocalHost();
         } else if (isInvalidLocalHost(hostToRegistry)) {
             throw new IllegalArgumentException("Specified invalid registry ip from property:" + DUBBO_IP_TO_REGISTRY + ", value:" + hostToRegistry);
         }
+        // 设置消费者ip
         map.put(REGISTER_IP_KEY, hostToRegistry);
 
         serviceMetadata.getAttachments().putAll(map);
-
+        /** 创建代理对象*****************/
         ref = createProxy(map);
 
         serviceMetadata.setTarget(ref);
@@ -323,25 +340,37 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
 
     @SuppressWarnings({"unchecked", "rawtypes", "deprecation"})
     private T createProxy(Map<String, String> map) {
+        // 根据配置检查是否为本地调用
         if (shouldJvmRefer(map)) {
+            // 生成url，protocol使用的是injvm
             URL url = new URL(LOCAL_PROTOCOL, LOCALHOST_VALUE, 0, interfaceClass.getName()).addParameters(map);
+            // 利用InjvmProtocol 的 refer 方法生成 InjvmInvoker 实例
             invoker = REF_PROTOCOL.refer(interfaceClass, url);
             if (logger.isInfoEnabled()) {
                 logger.info("Using injvm service " + interfaceClass.getName());
             }
         } else {
             urls.clear();
+            // 如果url不为空，则用户可能想进行直连来调用
             if (url != null && url.length() > 0) { // user specified URL, could be peer-to-peer address, or register center's address.
+                // 当需要配置多个 url 时，可用分号进行分割，这里会进行切分
                 String[] us = SEMICOLON_SPLIT_PATTERN.split(url);
+                // 遍历所有的url
                 if (us != null && us.length > 0) {
                     for (String u : us) {
                         URL url = URL.valueOf(u);
                         if (StringUtils.isEmpty(url.getPath())) {
+                            // 设置接口全限定名为 url 路径
                             url = url.setPath(interfaceName);
                         }
+                        // 检测 url 协议是否为 registry，若是，表明用户想使用指定的注册中心
                         if (UrlUtils.isRegistry(url)) {
+                            // 将 map 转换为查询字符串，并作为 refer 参数的值添加到 url 中
                             urls.add(url.putAttribute(REFER_KEY, map));
                         } else {
+                            // 合并 url，移除服务提供者的一些配置（这些配置来源于用户配置的 url 属性），
+                            // 比如线程池相关配置。并保留服务提供者的部分配置，比如版本，group，时间戳等
+                            // 最后将合并后的配置设置为 url 查询字符串中。
                             URL peerURL = ClusterUtils.mergeUrl(url, map);
                             peerURL = peerURL.putAttribute(PEER_KEY, true);
                             urls.add(peerURL);
@@ -351,14 +380,20 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
             } else { // assemble URL from register center's configuration
                 // if protocols not injvm checkRegistry
                 if (!LOCAL_PROTOCOL.equalsIgnoreCase(getProtocol())) {
+                    // 校验注册中心
                     checkRegistry();
+                    // 加载注册中心的url
                     List<URL> us = ConfigValidationUtils.loadRegistries(this, false);
                     if (CollectionUtils.isNotEmpty(us)) {
+                        // 遍历所有的注册中心
                         for (URL u : us) {
+                            // 生成监控url
                             URL monitorUrl = ConfigValidationUtils.loadMonitor(this, u);
                             if (monitorUrl != null) {
+                                // 加入监控中心url的配置
                                 map.put(MONITOR_KEY, URL.encode(monitorUrl.toFullString()));
                             }
+                            // 添加 refer 参数到 url 中，并将 url 添加到 urls 中
                             urls.add(u.putAttribute(REFER_KEY, map));
                         }
                     }
@@ -367,18 +402,26 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
                     }
                 }
             }
-
+            // 如果只有一个注册中心，则直接调用refer方法
             if (urls.size() == 1) {
+                // 调用 RegistryProtocol 的 refer 构建 Invoker 实例
                 invoker = REF_PROTOCOL.refer(interfaceClass, urls.get(0));
             } else {
                 List<Invoker<?>> invokers = new ArrayList<Invoker<?>>();
                 URL registryURL = null;
+                // 遍历所有的注册中心url
                 for (URL url : urls) {
+                    // 通过 refprotocol 调用 refer 构建 Invoker，
+                    // refprotocol 会在运行时根据 url 协议头加载指定的 Protocol 实例，并调用实例的 refer 方法
+                    // 把生成的Invoker加入到集合中
                     invokers.add(REF_PROTOCOL.refer(interfaceClass, url));
+                    // 如果是注册中心的协议
                     if (UrlUtils.isRegistry(url)) {
+                        // 则设置registryURL
                         registryURL = url; // use last registry url
                     }
                 }
+                // 优先用注册中心的url
                 if (registryURL != null) { // registry url is available
                     // for multi-subscription scenario, use 'zone-aware' policy by default
                     String cluster = registryURL.getParameter(CLUSTER_KEY, ZoneAwareCluster.NAME);
@@ -392,7 +435,6 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
                 }
             }
         }
-
         if (logger.isInfoEnabled()) {
             logger.info("Referred dubbo service " + interfaceClass.getName());
         }

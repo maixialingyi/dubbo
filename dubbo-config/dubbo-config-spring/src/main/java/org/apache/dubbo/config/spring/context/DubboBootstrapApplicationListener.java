@@ -46,9 +46,11 @@ public class DubboBootstrapApplicationListener extends OneTimeExecutionApplicati
         this.dubboBootstrap = DubboBootstrap.getInstance();
     }
 
+    //监听器调用方法
     @Override
     public void onApplicationContextEvent(ApplicationContextEvent event) {
         if (event instanceof ContextRefreshedEvent) {
+            //启动初始化事件
             onContextRefreshedEvent((ContextRefreshedEvent) event);
         } else if (event instanceof ContextClosedEvent) {
             onContextClosedEvent((ContextClosedEvent) event);

@@ -280,6 +280,7 @@ public class DubboProtocol extends AbstractProtocol {
 
     @Override
     public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
+        // 获得url
         URL url = invoker.getUrl();
 
         // export service.
@@ -300,8 +301,9 @@ public class DubboProtocol extends AbstractProtocol {
 
             }
         }
-
+        // 打开服务
         openServer(url);
+        // 序列化
         optimizeSerialization(url);
 
         return exporter;

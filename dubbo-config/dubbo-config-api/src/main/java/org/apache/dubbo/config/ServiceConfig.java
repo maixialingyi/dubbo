@@ -16,6 +16,7 @@
  */
 package org.apache.dubbo.config;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.URLBuilder;
 import org.apache.dubbo.common.Version;
@@ -192,7 +193,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             bootstrap.initialize();
             bootstrap.service(this);
         }
-
+        //检查并且更新配置
         checkAndUpdateSubConfigs();
 
         //init serviceMetadata
@@ -226,6 +227,8 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
     private void checkAndUpdateSubConfigs() {
         // Use default configs defined explicitly with global scope
+        // 用于检测 provider、application 等核心配置类对象是否为空，
+        // 若为空，则尝试从其他配置类对象中获取相应的实例。
         completeCompoundConfigs();
         checkDefault();
         checkProtocol();
@@ -297,17 +300,21 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
     protected synchronized void doExport() {
         System.out.println("ServiceConfig doExport()");
+        // 如果调用不暴露的方法，则unexported值为true
         if (unexported) {
             throw new IllegalStateException("The service " + interfaceClass.getName() + " has already unexported!");
         }
+        // 如果服务已经暴露了，则直接结束
         if (exported) {
             return;
         }
+        // 设置已经暴露
         exported = true;
-
+        // 如果path为空，则赋值接口名称
         if (StringUtils.isEmpty(path)) {
             path = interfaceName;
         }
+        // 多协议多注册中心暴露服务  组装url
         doExportUrls();
         exported();
     }
@@ -334,6 +341,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             repository.registerService(pathKey, interfaceClass);
             // TODO, uncomment this line once service key is unified
             serviceMetadata.setServiceKey(pathKey);
+            // 组装 URL  并  服务暴露
             doExportUrlsFor1Protocol(protocolConfig, registryURLs);
         }
     }
@@ -456,7 +464,11 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         Integer port = findConfigedPorts(protocolConfig, name, map);
         URL url = new URL(name, host, port, getContextPath(protocolConfig).map(p -> p + "/" + path).orElse(path), map);
 
+
+        // —————————————————————————————————————服务暴露——————————————————————————————————————
+
         // You can customize Configurator to append extra parameters
+        // 加载 ConfiguratorFactory，并生成 Configurator 实例，判断是否有该协议的实现存在
         if (ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class)
                 .hasExtension(url.getProtocol())) {
             url = ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class)
@@ -465,23 +477,30 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
         String scope = url.getParameter(SCOPE_KEY);
         // don't export when none is configured
+        // 如果 scope = none，则什么都不做
         if (!SCOPE_NONE.equalsIgnoreCase(scope)) {
 
             // export to local if the config is not remote (export to remote only when config is remote)
+            // scope != remote，暴露到本地
             if (!SCOPE_REMOTE.equalsIgnoreCase(scope)) {
                 exportLocal(url);
             }
             // export to remote if the config is not local (export to local only when config is local)
+            // scope != local，导出到远程
             if (!SCOPE_LOCAL.equalsIgnoreCase(scope)) {
+                // 如果注册中心链接集合不为空
                 if (CollectionUtils.isNotEmpty(registryURLs)) {
                     for (URL registryURL : registryURLs) {
                         //if protocol is only injvm ,not register
                         if (LOCAL_PROTOCOL.equalsIgnoreCase(url.getProtocol())) {
                             continue;
                         }
+                        // 添加dynamic配置
                         url = url.addParameterIfAbsent(DYNAMIC_KEY, registryURL.getParameter(DYNAMIC_KEY));
+                        // 加载监视器链接
                         URL monitorUrl = ConfigValidationUtils.loadMonitor(this, registryURL);
                         if (monitorUrl != null) {
+                            // 添加监视器配置
                             url = url.addParameterAndEncoded(MONITOR_KEY, monitorUrl.toFullString());
                         }
                         if (logger.isInfoEnabled()) {
@@ -493,14 +512,17 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                         }
 
                         // For providers, this is used to enable custom proxy to generate invoker
+                        // 获得代理方式
                         String proxy = url.getParameter(PROXY_KEY);
                         if (StringUtils.isNotEmpty(proxy)) {
+                            // 添加代理方式到注册中心到url
                             registryURL = registryURL.addParameter(PROXY_KEY, proxy);
                         }
-
+                        // 为服务提供类(ref)生成 Invoker
                         Invoker<?> invoker = PROXY_FACTORY.getInvoker(ref, (Class) interfaceClass, registryURL.putAttribute(EXPORT_KEY, url));
+                        // DelegateProviderMetaDataInvoker 用于持有 Invoker 和 ServiceConfig
                         DelegateProviderMetaDataInvoker wrapperInvoker = new DelegateProviderMetaDataInvoker(invoker, this);
-
+                        // 暴露服务，并且生成Exporter
                         Exporter<?> exporter = PROTOCOL.export(wrapperInvoker);
                         exporters.add(exporter);
                     }
@@ -511,6 +533,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                     if (MetadataService.class.getName().equals(url.getServiceInterface())) {
                         MetadataUtils.saveMetadataURL(url);
                     }
+                    // 不存在注册中心，则仅仅暴露服务，不会记录暴露到地址
                     Invoker<?> invoker = PROXY_FACTORY.getInvoker(ref, (Class) interfaceClass, url);
                     DelegateProviderMetaDataInvoker wrapperInvoker = new DelegateProviderMetaDataInvoker(invoker, this);
 
@@ -522,6 +545,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             }
         }
         this.urls.add(url);
+        logger.info("urls : "+ JSON.toJSONString(urls));
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

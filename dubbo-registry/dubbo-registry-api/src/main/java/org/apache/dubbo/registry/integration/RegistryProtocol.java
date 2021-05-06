@@ -434,6 +434,7 @@ public class RegistryProtocol implements Protocol {
     public <T> Invoker<T> refer(Class<T> type, URL url) throws RpcException {
         url = getRegistryUrl(url);
         Registry registry = registryFactory.getRegistry(url);
+        // 如果是注册中心服务，则返回注册中心服务的invoker
         if (RegistryService.class.equals(type)) {
             return proxyFactory.getInvoker((T) registry, type, url);
         }
@@ -442,12 +443,14 @@ public class RegistryProtocol implements Protocol {
         Map<String, String> qs = (Map<String, String>)url.getAttribute(REFER_KEY);
         String group = qs.get(GROUP_KEY);
         if (group != null && group.length() > 0) {
+            // 如果有多个组，或者组配置为*，则使用MergeableCluster，并调用 doRefer 继续执行服务引用逻辑
             if ((COMMA_SPLIT_PATTERN.split(group)).length > 1 || "*".equals(group)) {
                 return doRefer(Cluster.getCluster(MergeableCluster.NAME), registry, type, url, qs);
             }
         }
 
         Cluster cluster = Cluster.getCluster(qs.get(CLUSTER_KEY));
+        // 只有一个组或者没有组配置，则直接执行doRefer
         return doRefer(cluster, registry, type, url, qs);
     }
 
@@ -501,6 +504,7 @@ public class RegistryProtocol implements Protocol {
             registry.register(directory.getRegisteredConsumerUrl());
         }
         directory.buildRouterChain(urlToRegistry);
+        //调用DubboProtocol refer()   xxx
         directory.subscribe(toSubscribeUrl(urlToRegistry));
 
         return (ClusterInvoker<T>) cluster.join(directory);
