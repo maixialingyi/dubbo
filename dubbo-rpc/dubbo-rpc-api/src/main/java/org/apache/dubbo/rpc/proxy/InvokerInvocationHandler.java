@@ -49,6 +49,7 @@ public class InvokerInvocationHandler implements InvocationHandler {
         }
     }
 
+    //处理Object基础方法， 初始化RpcInvocation，执行调用
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (method.getDeclaringClass() == Object.class) {
@@ -79,7 +80,7 @@ public class InvokerInvocationHandler implements InvocationHandler {
             rpcInvocation.put(Constants.CONSUMER_MODEL, consumerModel);
             rpcInvocation.put(Constants.METHOD_MODEL, consumerModel.getMethodModel(method));
         }
-
+        //调用
         return invoker.invoke(rpcInvocation).recreate();
     }
 }

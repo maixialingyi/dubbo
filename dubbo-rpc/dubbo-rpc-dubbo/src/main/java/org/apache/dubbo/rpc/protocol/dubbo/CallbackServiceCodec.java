@@ -52,6 +52,7 @@ import static org.apache.dubbo.rpc.protocol.dubbo.Constants.IS_CALLBACK_SERVICE;
 
 /**
  * callback service helper
+ * 针对回调服务的编解码器。
  */
 class CallbackServiceCodec {
     private static final Logger logger = LoggerFactory.getLogger(CallbackServiceCodec.class);

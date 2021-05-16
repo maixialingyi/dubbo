@@ -42,6 +42,7 @@ public class ChannelHandlers {
         INSTANCE = instance;
     }
 
+    // 调用了多消息处理器，对心跳消息进行了功能加强
     protected ChannelHandler wrapInternal(ChannelHandler handler, URL url) {
         return new MultiMessageHandler(new HeartbeatHandler(ExtensionLoader.getExtensionLoader(Dispatcher.class)
                 .getAdaptiveExtension().dispatch(handler, url)));

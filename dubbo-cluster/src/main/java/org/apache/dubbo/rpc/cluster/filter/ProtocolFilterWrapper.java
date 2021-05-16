@@ -35,6 +35,7 @@ import static org.apache.dubbo.rpc.cluster.Constants.PEER_KEY;
 
 /**
  * ListenerProtocol
+ * 服务引用和暴露的方法上加上了过滤器功能
  */
 @Activate(order = 100)
 public class ProtocolFilterWrapper implements Protocol {
@@ -57,14 +58,17 @@ public class ProtocolFilterWrapper implements Protocol {
 
     @Override
     public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
+        // 如果是注册中心，则直接暴露服务
         if (UrlUtils.isRegistry(invoker.getUrl())) {
             return protocol.export(invoker);
         }
+        // 服务提供侧暴露服务
         return protocol.export(builder.buildInvokerChain(invoker, SERVICE_FILTER_KEY, CommonConstants.PROVIDER));
     }
 
     @Override
     public <T> Invoker<T> refer(Class<T> type, URL url) throws RpcException {
+        // 如果是注册中心，则直接引用
         if (UrlUtils.isRegistry(url)) {
             return protocol.refer(type, url);
         }

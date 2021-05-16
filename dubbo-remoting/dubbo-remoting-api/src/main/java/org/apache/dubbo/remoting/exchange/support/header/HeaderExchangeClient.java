@@ -50,7 +50,9 @@ public class HeaderExchangeClient implements ExchangeClient {
 
     private static final HashedWheelTimer IDLE_CHECK_TIMER = new HashedWheelTimer(
             new NamedThreadFactory("dubbo-client-idleCheck", true), 1, TimeUnit.SECONDS, TICKS_PER_WHEEL);
+    // 心跳定时任务
     private HeartbeatTimerTask heartBeatTimerTask;
+    // 重连定时任务
     private ReconnectTimerTask reconnectTimerTask;
 
     public HeaderExchangeClient(Client client, boolean startTimer) {

@@ -21,11 +21,12 @@ import org.apache.dubbo.remoting.exchange.ExchangeChannel;
 
 /**
  * Replier. (API, Prototype, ThreadSafe)
+ * 支持不同的处理器对应不同数据类型
  */
 public interface Replier<T> {
 
     /**
-     * reply.
+     * reply.  回复请求结果
      *
      * @param channel
      * @param request

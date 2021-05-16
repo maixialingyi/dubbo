@@ -17,7 +17,7 @@
 package org.apache.dubbo.rpc.service;
 
 /**
- * Echo service.
+ * Echo service.  回声测试
  * @export
  */
 public interface EchoService {

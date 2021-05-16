@@ -33,7 +33,7 @@ import org.apache.dubbo.remoting.exchange.support.header.HeaderExchanger;
 public interface Exchanger {
 
     /**
-     * bind.
+     * bind.  绑定一个服务器
      *
      * @param url
      * @param handler
@@ -43,7 +43,7 @@ public interface Exchanger {
     ExchangeServer bind(URL url, ExchangeHandler handler) throws RemotingException;
 
     /**
-     * connect.
+     * connect.  连接一个服务器，也就是创建一个客户端
      *
      * @param url
      * @param handler

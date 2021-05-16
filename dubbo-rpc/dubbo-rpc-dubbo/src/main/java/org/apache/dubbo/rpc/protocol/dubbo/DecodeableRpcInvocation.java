@@ -49,18 +49,19 @@ import static org.apache.dubbo.common.constants.CommonConstants.PATH_KEY;
 import static org.apache.dubbo.common.constants.CommonConstants.VERSION_KEY;
 import static org.apache.dubbo.rpc.protocol.dubbo.CallbackServiceCodec.decodeInvocationArgument;
 
+//该类主要做了对于会话域内的数据进行序列化和解码
 public class DecodeableRpcInvocation extends RpcInvocation implements Codec, Decodeable {
 
     private static final Logger log = LoggerFactory.getLogger(DecodeableRpcInvocation.class);
 
     private Channel channel;
-
+    //序列化类型
     private byte serializationType;
-
+    //输入流
     private InputStream inputStream;
 
     private Request request;
-
+    //是否解码
     private volatile boolean hasDecoded;
 
     public DecodeableRpcInvocation(Channel channel, Request request, InputStream is, byte id) {
@@ -75,6 +76,7 @@ public class DecodeableRpcInvocation extends RpcInvocation implements Codec, Dec
 
     @Override
     public void decode() throws Exception {
+        // 如果没有解码，则进行解码
         if (!hasDecoded && channel != null && inputStream != null) {
             try {
                 decode(channel, inputStream);
@@ -85,6 +87,7 @@ public class DecodeableRpcInvocation extends RpcInvocation implements Codec, Dec
                 request.setBroken(true);
                 request.setData(e);
             } finally {
+                // 设置已经解码
                 hasDecoded = true;
             }
         }
@@ -97,17 +100,20 @@ public class DecodeableRpcInvocation extends RpcInvocation implements Codec, Dec
 
     @Override
     public Object decode(Channel channel, InputStream input) throws IOException {
+        // 对数据进行反序列化
         ObjectInput in = CodecSupport.getSerialization(channel.getUrl(), serializationType)
                 .deserialize(channel.getUrl(), input);
-
+        // dubbo版本
         String dubboVersion = in.readUTF();
+        // 请求中放入dubbo版本
         request.setVersion(dubboVersion);
+        // 附加值内加入dubbo版本，path以及版本号
         setAttachment(DUBBO_VERSION_KEY, dubboVersion);
 
         String path = in.readUTF();
         setAttachment(PATH_KEY, path);
         setAttachment(VERSION_KEY, in.readUTF());
-
+        // 设置方法名称
         setMethodName(in.readUTF());
 
         String desc = in.readUTF();

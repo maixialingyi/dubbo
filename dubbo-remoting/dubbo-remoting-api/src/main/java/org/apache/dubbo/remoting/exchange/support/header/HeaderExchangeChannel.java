@@ -43,10 +43,13 @@ final class HeaderExchangeChannel implements ExchangeChannel {
 
     private static final Logger logger = LoggerFactory.getLogger(HeaderExchangeChannel.class);
 
+    //通道的key值
     private static final String CHANNEL_KEY = HeaderExchangeChannel.class.getName() + ".CHANNEL";
 
+    //通道
     private final Channel channel;
 
+    //是否关闭
     private volatile boolean closed = false;
 
     HeaderExchangeChannel(Channel channel) {
@@ -56,13 +59,16 @@ final class HeaderExchangeChannel implements ExchangeChannel {
         this.channel = channel;
     }
 
+    //获取 HeaderExchangeChannel
     static HeaderExchangeChannel getOrAddChannel(Channel ch) {
         if (ch == null) {
             return null;
         }
+        // 获得通道中的HeaderExchangeChannel
         HeaderExchangeChannel ret = (HeaderExchangeChannel) ch.getAttribute(CHANNEL_KEY);
         if (ret == null) {
             ret = new HeaderExchangeChannel(ch);
+            // 如果通道连接，加入属性值
             if (ch.isConnected()) {
                 ch.setAttribute(CHANNEL_KEY, ret);
             }
@@ -70,12 +76,14 @@ final class HeaderExchangeChannel implements ExchangeChannel {
         return ret;
     }
 
+    //channel连接断开则销毁 HeaderExchangeChannel
     static void removeChannelIfDisconnected(Channel ch) {
         if (ch != null && !ch.isConnected()) {
             ch.removeAttribute(CHANNEL_KEY);
         }
     }
 
+    //销毁HeaderExchangeChannel
     static void removeChannel(Channel ch) {
         if (ch != null) {
             ch.removeAttribute(CHANNEL_KEY);
@@ -87,8 +95,12 @@ final class HeaderExchangeChannel implements ExchangeChannel {
         send(message, false);
     }
 
+    /**
+     * 该方法是在channel的send方法上加上了request和response模型，最后再调用channel.send，起到了装饰器的作用
+     */
     @Override
     public void send(Object message, boolean sent) throws RemotingException {
+        // 如果通道关闭，抛出异常
         if (closed) {
             throw new RemotingException(this.getLocalAddress(), null, "Failed to send message " + message + ", cause: The channel " + this + " is closed!");
         }
@@ -98,7 +110,9 @@ final class HeaderExchangeChannel implements ExchangeChannel {
             channel.send(message, sent);
         } else {
             Request request = new Request();
+            //设置信息版本
             request.setVersion(Version.getProtocolVersion());
+            //该请求不需要返回
             request.setTwoWay(false);
             request.setData(message);
             channel.send(request, sent);
@@ -120,6 +134,10 @@ final class HeaderExchangeChannel implements ExchangeChannel {
         return request(request, channel.getUrl().getPositiveParameter(TIMEOUT_KEY, DEFAULT_TIMEOUT), executor);
     }
 
+    /**
+     * 该方法是请求方法，用Request模型把请求内容装饰起来，
+     * 然后发送一个Request类型的消息，并且返回DefaultFuture实例
+     */
     @Override
     public CompletableFuture<Object> request(Object request, int timeout, ExecutorService executor) throws RemotingException {
         if (closed) {
@@ -128,8 +146,10 @@ final class HeaderExchangeChannel implements ExchangeChannel {
         // create request.
         Request req = new Request();
         req.setVersion(Version.getProtocolVersion());
+        // 设置需要响应
         req.setTwoWay(true);
         req.setData(request);
+        // 创建DefaultFuture对象，可以从future中主动获得请求对应的响应信息
         DefaultFuture future = DefaultFuture.newFuture(channel, req, timeout, executor);
         try {
             channel.send(req);

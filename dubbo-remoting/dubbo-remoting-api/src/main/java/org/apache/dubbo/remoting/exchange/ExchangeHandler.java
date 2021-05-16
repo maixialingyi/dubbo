@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 public interface ExchangeHandler extends ChannelHandler, TelnetHandler {
 
     /**
-     * reply.
+     * reply. 回复请求结果
      *
      * @param channel
      * @param request

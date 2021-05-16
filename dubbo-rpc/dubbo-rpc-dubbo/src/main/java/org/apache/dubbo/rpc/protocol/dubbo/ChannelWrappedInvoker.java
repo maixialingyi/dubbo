@@ -45,11 +45,13 @@ import static org.apache.dubbo.rpc.protocol.dubbo.Constants.CALLBACK_SERVICE_KEY
 /**
  * Server push uses this Invoker to continuously push data to client.
  * Wrap the existing invoker on the channel.
+ * 该类是对当前通道内的客户端调用消息进行包装
  */
 class ChannelWrappedInvoker<T> extends AbstractInvoker<T> {
 
     private final Channel channel;
     private final String serviceKey;
+    //当前的客户端
     private final ExchangeClient currentClient;
 
     ChannelWrappedInvoker(Class<T> serviceType, Channel channel, URL url, String serviceKey) {
@@ -63,11 +65,15 @@ class ChannelWrappedInvoker<T> extends AbstractInvoker<T> {
     protected Result doInvoke(Invocation invocation) throws Throwable {
         RpcInvocation inv = (RpcInvocation) invocation;
         // use interface's name as service path to export if it's not found on client side
+        // 设置服务path，默认用接口名称
         inv.setAttachment(PATH_KEY, getInterface().getName());
+        // 设置回调的服务key
         inv.setAttachment(CALLBACK_SERVICE_KEY, serviceKey);
 
         try {
+            // 如果是异步的
             if (RpcUtils.isOneway(getUrl(), inv)) { // may have concurrency issue
+                // 直接发送请求消息
                 currentClient.send(inv, getUrl().getMethodParameter(invocation.getMethodName(), SENT_KEY, false));
                 return AsyncRpcResult.newDefaultAsyncResult(invocation);
             } else {
@@ -95,6 +101,7 @@ class ChannelWrappedInvoker<T> extends AbstractInvoker<T> {
 //        }
     }
 
+    //将编码器变成了dubbo的编码器
     public static class ChannelWrapper extends ClientDelegate {
 
         private final Channel channel;

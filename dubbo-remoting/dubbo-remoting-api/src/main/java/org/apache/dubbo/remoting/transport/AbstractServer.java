@@ -57,10 +57,13 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
 
     public AbstractServer(URL url, ChannelHandler handler) throws RemotingException {
         super(url, handler);
+        // 从url中获得本地地址
         localAddress = getUrl().toInetSocketAddress();
-
+        // 从url配置中获得绑定的ip
         String bindIp = getUrl().getParameter(Constants.BIND_IP_KEY, getUrl().getHost());
+        // 从url配置中获得绑定的端口号
         int bindPort = getUrl().getParameter(Constants.BIND_PORT_KEY, getUrl().getPort());
+        // 判断url中配置anyhost是否为true或者判断host是否为不可用的本地Host
         if (url.getParameter(ANYHOST_KEY, false) || NetUtils.isInvalidLocalHost(bindIp)) {
             bindIp = ANYHOST_VALUE;
         }
@@ -68,6 +71,7 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
         this.accepts = url.getParameter(ACCEPTS_KEY, DEFAULT_ACCEPTS);
         this.idleTimeout = url.getParameter(IDLE_TIMEOUT_KEY, DEFAULT_IDLE_TIMEOUT);
         try {
+            // 开启服务器
             doOpen();
             if (logger.isInfoEnabled()) {
                 logger.info("Start " + getClass().getSimpleName() + " bind " + getBindAddress() + ", export " + getLocalAddress());
@@ -76,13 +80,16 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
             throw new RemotingException(url.toInetSocketAddress(), null, "Failed to bind " + getClass().getSimpleName()
                     + " on " + getLocalAddress() + ", cause: " + t.getMessage(), t);
         }
+        // 获得线程池
         executor = executorRepository.createExecutorIfAbsent(url);
     }
 
+    //开启服务端
     protected abstract void doOpen() throws Throwable;
-
+    //关闭服务端
     protected abstract void doClose() throws Throwable;
 
+    //重置 最大可连接的客户端数量，idle空闲超时时间超时，线程池
     @Override
     public void reset(URL url) {
         if (url == null) {

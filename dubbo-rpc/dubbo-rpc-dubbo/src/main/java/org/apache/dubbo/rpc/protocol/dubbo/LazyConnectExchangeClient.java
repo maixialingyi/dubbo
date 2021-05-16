@@ -40,6 +40,7 @@ import static org.apache.dubbo.rpc.protocol.dubbo.Constants.DEFAULT_LAZY_CONNECT
 
 /**
  * dubbo protocol support class.
+ * 该类实现了ExchangeClient接口，是ExchangeClient的装饰器，用到了装饰模式，是延迟连接的客户端实现类。
  */
 @SuppressWarnings("deprecation")
 final class LazyConnectExchangeClient implements ExchangeClient {

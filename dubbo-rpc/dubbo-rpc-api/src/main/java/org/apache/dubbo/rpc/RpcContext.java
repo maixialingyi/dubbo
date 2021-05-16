@@ -55,6 +55,7 @@ public class RpcContext {
 
     /**
      * use internal thread local to improve performance
+     * 本地上下文
      */
     // FIXME REQUEST_CONTEXT
     private static final InternalThreadLocal<RpcContext> LOCAL = new InternalThreadLocal<RpcContext>() {
@@ -64,7 +65,7 @@ public class RpcContext {
         }
     };
 
-    // FIXME RESPONSE_CONTEXT
+    // FIXME RESPONSE_CONTEXT   服务上下文
     private static final InternalThreadLocal<RpcContext> SERVER_LOCAL = new InternalThreadLocal<RpcContext>() {
         @Override
         protected RpcContext initialValue() {
@@ -72,25 +73,50 @@ public class RpcContext {
         }
     };
 
+    /**
+     * 附加值集合
+     */
     protected final Map<String, Object> attachments = new HashMap<>();
+    /**
+     * 上下文值
+     */
     private final Map<String, Object> values = new HashMap<String, Object>();
 
+    /**
+     * url集合
+     */
     private List<URL> urls;
 
+    /**
+     * 当前的url
+     */
     private URL url;
-
+    /**
+     * 方法名称
+     */
     private String methodName;
-
+    /**
+     * 参数类型集合
+     */
     private Class<?>[] parameterTypes;
-
+    /**
+     * 参数集合
+     */
     private Object[] arguments;
-
+    /**
+     * 本地地址
+     */
     private InetSocketAddress localAddress;
-
+    /**
+     * 远程地址
+     */
     private InetSocketAddress remoteAddress;
 
     private String remoteApplicationName;
 
+    /**
+     * 实体域集合
+     */
     @Deprecated
     private List<Invoker<?>> invokers;
     @Deprecated

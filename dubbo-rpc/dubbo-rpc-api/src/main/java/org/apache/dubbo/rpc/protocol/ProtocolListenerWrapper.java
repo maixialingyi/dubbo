@@ -40,6 +40,7 @@ import static org.apache.dubbo.common.constants.RegistryConstants.REGISTRY_CLUST
 
 /**
  * ListenerProtocol
+ * 该方法是在服务引用上做了监听器功能的增强，也就是加上了监听器。
  */
 @Activate(order = 200)
 public class ProtocolListenerWrapper implements Protocol {
@@ -60,9 +61,11 @@ public class ProtocolListenerWrapper implements Protocol {
 
     @Override
     public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
+        // 如果是注册中心，则暴露该invoker
         if (UrlUtils.isRegistry(invoker.getUrl())) {
             return protocol.export(invoker);
         }
+        // 创建一个暴露者监听器包装类对象
         return new ListenerExporterWrapper<T>(protocol.export(invoker),
                 Collections.unmodifiableList(ExtensionLoader.getExtensionLoader(ExporterListener.class)
                         .getActivateExtension(invoker.getUrl(), EXPORTER_LISTENER_KEY)));
@@ -70,6 +73,7 @@ public class ProtocolListenerWrapper implements Protocol {
 
     @Override
     public <T> Invoker<T> refer(Class<T> type, URL url) throws RpcException {
+        // 如果是注册中心。则直接引用服务
         if (UrlUtils.isRegistry(url)) {
             return protocol.refer(type, url);
         }

@@ -29,13 +29,23 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * ExchangeHandlerDispatcher
+ * 信息交换处理器调度器类，不同事件选择不同的处理器去处理
  */
 public class ExchangeHandlerDispatcher implements ExchangeHandler {
 
+    /**
+     * 回复者调度器
+     */
     private final ReplierDispatcher replierDispatcher;
 
+    /**
+     * 通道处理器调度器
+     */
     private final ChannelHandlerDispatcher handlerDispatcher;
 
+    /**
+     * Telnet 命令处理器
+     */
     private final TelnetHandler telnetHandler;
 
     public ExchangeHandlerDispatcher() {

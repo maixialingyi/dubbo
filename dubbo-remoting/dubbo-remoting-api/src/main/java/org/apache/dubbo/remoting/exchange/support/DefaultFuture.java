@@ -42,14 +42,17 @@ import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_TIMEOUT;
 import static org.apache.dubbo.common.constants.CommonConstants.TIMEOUT_KEY;
 
 /**
- * DefaultFuture.
+ * DefaultFuture.  处理响应
+ * 把请求和响应通过唯一的id一一对应起来。做到异步处理返回结果时能给准确的返回给对应的请求
  */
 public class DefaultFuture extends CompletableFuture<Object> {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultFuture.class);
 
+    //通道集合      key为request.id
     private static final Map<Long, Channel> CHANNELS = new ConcurrentHashMap<>();
 
+    //Future集合， key为request.id
     private static final Map<Long, DefaultFuture> FUTURES = new ConcurrentHashMap<>();
 
     public static final Timer TIME_OUT_TIMER = new HashedWheelTimer(
@@ -57,13 +60,19 @@ public class DefaultFuture extends CompletableFuture<Object> {
             30,
             TimeUnit.MILLISECONDS);
 
-    // invoke id.
+    // invoke id. 请求编号
     private final Long id;
+    //通道
     private final Channel channel;
+    //请求
     private final Request request;
+    //超时
     private final int timeout;
+    //创建开始时间
     private final long start = System.currentTimeMillis();
+    //发送请求时间
     private volatile long sent;
+    //检查超时定时任务
     private Timeout timeoutCheckTask;
 
     private ExecutorService executor;
@@ -136,6 +145,7 @@ public class DefaultFuture extends CompletableFuture<Object> {
      * directly return the unfinished requests.
      *
      * @param channel channel to close
+     * 关闭指定channel的请求，返回请求未完成。
      */
     public static void closeChannel(Channel channel) {
         for (Map.Entry<Long, Channel> entry : CHANNELS.entrySet()) {
@@ -146,13 +156,14 @@ public class DefaultFuture extends CompletableFuture<Object> {
                     if (futureExecutor != null && !futureExecutor.isTerminated()) {
                         futureExecutor.shutdownNow();
                     }
-
+                    // 创建一个关闭通道的响应
                     Response disconnectResponse = new Response(future.getId());
                     disconnectResponse.setStatus(Response.CHANNEL_INACTIVE);
                     disconnectResponse.setErrorMessage("Channel " +
                             channel +
                             " is inactive. Directly return the unFinished request : " +
                             future.getRequest());
+                    //返回请求未完成
                     DefaultFuture.received(channel, disconnectResponse);
                 }
             }
@@ -165,6 +176,7 @@ public class DefaultFuture extends CompletableFuture<Object> {
 
     public static void received(Channel channel, Response response, boolean timeout) {
         try {
+            // future集合中移除该请求的future
             DefaultFuture future = FUTURES.remove(response.getId());
             if (future != null) {
                 Timeout t = future.timeoutCheckTask;
@@ -172,6 +184,7 @@ public class DefaultFuture extends CompletableFuture<Object> {
                     // decrease Time
                     t.cancel();
                 }
+                // 接收响应结果
                 future.doReceived(response);
             } else {
                 logger.warn("The timeout response finally returned at "
@@ -181,6 +194,7 @@ public class DefaultFuture extends CompletableFuture<Object> {
                         + " -> " + channel.getRemoteAddress()) + ", please check provider side for detailed result.");
             }
         } finally {
+            // 通道集合移除该请求对应的通道，代表着这一次请求结束
             CHANNELS.remove(response.getId());
         }
     }
@@ -204,8 +218,10 @@ public class DefaultFuture extends CompletableFuture<Object> {
         if (res == null) {
             throw new IllegalStateException("response cannot be null");
         }
+        //结束线程
         if (res.getStatus() == Response.OK) {
             this.complete(res.getResult());
+            //异常结束
         } else if (res.getStatus() == Response.CLIENT_TIMEOUT || res.getStatus() == Response.SERVER_TIMEOUT) {
             this.completeExceptionally(new TimeoutException(res.getStatus() == Response.SERVER_TIMEOUT, channel, res.getErrorMessage()));
         } else {

@@ -46,9 +46,12 @@ public class DeprecatedFilter implements Filter {
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
+        // 获得key 服务+方法
         String key = invoker.getInterface().getName() + "." + invocation.getMethodName();
+        // 如果集合中没有该key
         if (!LOGGED.contains(key)) {
             LOGGED.add(key);
+            // 如果该服务方法是废弃的，则打印错误日志
             if (invoker.getUrl().getMethodParameter(invocation.getMethodName(), DEPRECATED_KEY, false)) {
                 LOGGER.error("The service method " + invoker.getInterface().getName() + "." + getMethodSignature(invocation) + " is DEPRECATED! Declare from " + invoker.getUrl());
             }

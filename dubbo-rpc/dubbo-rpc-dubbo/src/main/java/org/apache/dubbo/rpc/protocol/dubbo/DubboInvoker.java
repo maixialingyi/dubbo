@@ -162,17 +162,21 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
         // closed.
         if (!super.isDestroyed()) {
             // double check to avoid dup close
+            // 获得销毁锁
             destroyLock.lock();
             try {
                 if (super.isDestroyed()) {
                     return;
                 }
+                // 销毁
                 super.destroy();
+                // 从集合中移除
                 if (invokers != null) {
                     invokers.remove(this);
                 }
                 for (ExchangeClient client : clients) {
                     try {
+                        // 关闭每一个客户端
                         client.close(ConfigurationUtils.getServerShutdownTimeout());
                     } catch (Throwable t) {
                         logger.warn(t.getMessage(), t);
