@@ -46,22 +46,27 @@ public interface DubboBeanUtils {
     static void registerCommonBeans(BeanDefinitionRegistry registry) {
 
         // Since 2.5.7 Register @Reference Annotation Bean Processor as an infrastructure Bean
+        // DubboReference注解处理器
         registerInfrastructureBean(registry, ReferenceAnnotationBeanPostProcessor.BEAN_NAME,
                 ReferenceAnnotationBeanPostProcessor.class);
 
         // Since 2.7.4 [Feature] https://github.com/apache/dubbo/issues/5093
+        // 别名后置处理器
         registerInfrastructureBean(registry, DubboConfigAliasPostProcessor.BEAN_NAME,
                 DubboConfigAliasPostProcessor.class);
 
         // Since 2.7.5 Register DubboLifecycleComponentApplicationListener as an infrastructure Bean
+        // 生命周期监听器
         registerInfrastructureBean(registry, DubboLifecycleComponentApplicationListener.BEAN_NAME,
                 DubboLifecycleComponentApplicationListener.class);
 
         // Since 2.7.4 Register DubboBootstrapApplicationListener as an infrastructure Bean
+        // 启动监听器
         registerInfrastructureBean(registry, DubboBootstrapApplicationListener.BEAN_NAME,
                 DubboBootstrapApplicationListener.class);
 
         // Since 2.7.6 Register DubboConfigDefaultPropertyValueBeanPostProcessor as an infrastructure Bean
+        // config 属性值 后置处理器
         registerInfrastructureBean(registry, DubboConfigDefaultPropertyValueBeanPostProcessor.BEAN_NAME,
                 DubboConfigDefaultPropertyValueBeanPostProcessor.class);
     }

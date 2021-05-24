@@ -199,6 +199,10 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
         this.services = services;
     }
 
+    /**
+     * 处理注解@DubboReference spring中注入RefrenceBean后调用，并赋值给spring
+     * @return
+     */
     public synchronized T get() {
         // 如果被销毁，则抛出异常
         if (destroyed) {

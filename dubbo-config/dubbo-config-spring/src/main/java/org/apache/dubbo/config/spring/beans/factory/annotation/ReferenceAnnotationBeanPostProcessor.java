@@ -118,29 +118,39 @@ public class ReferenceAnnotationBeanPostProcessor extends AbstractAnnotationBean
         return Collections.unmodifiableMap(injectedMethodReferenceBeanCache);
     }
 
+    /**
+     * AbstractAnnotationBeanPostProcessor.postProcessPropertyValues()  最终调用到此处
+     * 扫描注解@DubboReference  生成代理注入bean
+     */
     @Override
     protected Object doGetInjectedBean(AnnotationAttributes attributes, Object bean, String beanName, Class<?> injectedType,
                                        InjectionMetadata.InjectedElement injectedElement) throws Exception {
         /**
          * The name of bean that annotated Dubbo's {@link Service @Service} in local Spring {@link ApplicationContext}
+         * 标识字符串    ServiceBean:” +接口的全限定名称+ group:version
          */
         String referencedBeanName = buildReferencedBeanName(attributes, injectedType);
 
         /**
          * The name of bean that is declared by {@link Reference @Reference} annotation injection
+         * 标识调用者的字符串  @Reference +(key1=value2,key2=value2, …) + 接口全限定名称
          */
         String referenceBeanName = getReferenceBeanName(attributes, injectedType);
 
+        // 构造ReferenceBean
         ReferenceBean referenceBean = buildReferenceBeanIfAbsent(referenceBeanName, attributes, injectedType);
 
+        // 检查服务消费者和提供者是否是在同一个应用中
         boolean localServiceBean = isLocalServiceBean(referencedBeanName, referenceBean, attributes);
 
         prepareReferenceBean(referencedBeanName, referenceBean, localServiceBean);
 
+        // 注册ReferenceBean对象到容器中
         registerReferenceBean(referencedBeanName, referenceBean, attributes, localServiceBean, injectedType);
 
         cacheInjectedReferenceBean(referenceBean, injectedElement);
 
+        //生成代理类赋值给ReferenceBean的object中。并返回
         return referenceBean.get();
     }
 
@@ -166,6 +176,8 @@ public class ReferenceAnnotationBeanPostProcessor extends AbstractAnnotationBean
             /**
              * Get  the @Service's BeanDefinition from {@link BeanFactory}
              * Refer to {@link ServiceAnnotationBeanPostProcessor#buildServiceBeanDefinition}
+             * 如果消费者和提供者在同一个程序中，会直接把ReferenceBean的ref字段注入服务提供者。
+             * 如果不在同一个程序中则会直接拿ReferenceBean放入容器中
              */
             AbstractBeanDefinition beanDefinition = (AbstractBeanDefinition) beanFactory.getBeanDefinition(referencedBeanName);
             RuntimeBeanReference runtimeBeanReference = (RuntimeBeanReference) beanDefinition.getPropertyValues().get("ref");

@@ -46,7 +46,11 @@ public class DubboBootstrapApplicationListener extends OneTimeExecutionApplicati
         this.dubboBootstrap = DubboBootstrap.getInstance();
     }
 
-    //监听器调用方法
+    /**
+     *  @DubboService处理器ServiceAnnotationBeanPostProcessor中注册的监听
+     *  进行服务暴露
+     * @param event {@link ApplicationContextEvent}
+     */
     @Override
     public void onApplicationContextEvent(ApplicationContextEvent event) {
         if (event instanceof ContextRefreshedEvent) {
@@ -58,7 +62,6 @@ public class DubboBootstrapApplicationListener extends OneTimeExecutionApplicati
     }
 
     private void onContextRefreshedEvent(ContextRefreshedEvent event) {
-        System.out.println("----------> 监听 启动初始化");
         dubboBootstrap.start();
     }
 

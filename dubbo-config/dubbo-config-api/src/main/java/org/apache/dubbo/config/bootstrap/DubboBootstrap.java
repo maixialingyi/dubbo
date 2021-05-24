@@ -538,8 +538,9 @@ public class DubboBootstrap extends GenericEventListener {
         if (logger.isInfoEnabled()) {
             logger.info(NAME + " has been initialized!");
             logger.info(NAME +"."+configManager + ":" + JSON.toJSONString(configManager));
-
         }
+        System.out.println("***"+JSON.toJSONString(configManager));
+
 
     }
 
@@ -883,7 +884,6 @@ public class DubboBootstrap extends GenericEventListener {
      * Start the bootstrap
      */
     public DubboBootstrap start() {
-        System.out.println("DubboBootstrap start()");
         if (started.compareAndSet(false, true)) {
             startup.set(false);
             //初始化DubboBootstrap.ConfigManager
@@ -892,7 +892,7 @@ public class DubboBootstrap extends GenericEventListener {
                 logger.info(NAME + " is starting...");
             }
             // 1. export Dubbo Services
-            // 组装url  生成 生成消费接口代理对象
+            // 组装url
             exportServices();
 
             // Not only provider register

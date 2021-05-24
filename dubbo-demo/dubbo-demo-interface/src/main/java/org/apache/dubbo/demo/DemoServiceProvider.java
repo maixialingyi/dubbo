@@ -18,12 +18,12 @@ package org.apache.dubbo.demo;
 
 import java.util.concurrent.CompletableFuture;
 
-public interface Demo2Service {
+public interface DemoServiceProvider {
 
-    String sayHello(String name);
+    String sayHelloProvider(String name);
 
-    default CompletableFuture<String> sayHelloAsync(String name) {
-        return CompletableFuture.completedFuture(sayHello(name));
+    default CompletableFuture<String> sayHelloAsyncProvider(String name) {
+        return CompletableFuture.completedFuture(sayHelloProvider(name));
     }
 
 }

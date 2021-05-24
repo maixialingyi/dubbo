@@ -30,7 +30,7 @@ public interface ProxyFactory {
 
     /**
      * create proxy.
-     *
+     * 获取代理对象方法接口
      * @param invoker
      * @return proxy
      */
@@ -39,15 +39,16 @@ public interface ProxyFactory {
 
     /**
      * create proxy.
-     *
-     * @param invoker
-     * @return proxy
+     * generic 在dubbo:reference中配置，表示是否缺省泛化接口
+     * 如果为泛化接口，将返回GenericService，此时消费者可用如下方式调用。
+     * GenericService demoService = (GenericService) context.getBean("demoService");
+     * Object result = demoService.$invoke("getPermissions", new String[] { "java.lang.Long" }, new Object[]{ 1L });
      */
     @Adaptive({PROXY_KEY})
     <T> T getProxy(Invoker<T> invoker, boolean generic) throws RpcException;
 
     /**
-     * create invoker.
+     * create invoker.获取调用者方法接口
      *
      * @param <T>
      * @param proxy

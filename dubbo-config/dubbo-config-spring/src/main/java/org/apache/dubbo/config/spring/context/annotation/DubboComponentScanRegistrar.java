@@ -52,7 +52,6 @@ public class DubboComponentScanRegistrar implements ImportBeanDefinitionRegistra
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        System.out.println("DubboComponentScan  @DubboReference  @DubboService ");
 
         Set<String> packagesToScan = getPackagesToScan(importingClassMetadata);
         //处理服务注解
@@ -72,9 +71,13 @@ public class DubboComponentScanRegistrar implements ImportBeanDefinitionRegistra
     private void registerServiceAnnotationBeanPostProcessor(Set<String> packagesToScan, BeanDefinitionRegistry registry) {
 
         BeanDefinitionBuilder builder = rootBeanDefinition(ServiceAnnotationBeanPostProcessor.class);
+        //添加扫描包路径
         builder.addConstructorArgValue(packagesToScan);
+        //单例  多例
         builder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        //创建beanDefinition
         AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
+        //注册beanDefinition
         BeanDefinitionReaderUtils.registerWithGeneratedName(beanDefinition, registry);
 
     }

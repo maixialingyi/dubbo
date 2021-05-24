@@ -17,8 +17,7 @@
 package org.apache.dubbo.demo.provider;
 
 import org.apache.dubbo.config.annotation.DubboService;
-import org.apache.dubbo.demo.Demo2Service;
-import org.apache.dubbo.demo.DemoService;
+import org.apache.dubbo.demo.DemoServiceProvider;
 import org.apache.dubbo.rpc.RpcContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,18 +25,18 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CompletableFuture;
 
 @DubboService
-public class Demo2ServiceImpl implements Demo2Service {
-    private static final Logger logger = LoggerFactory.getLogger(Demo2ServiceImpl.class);
+public class DemoServiceProviderImpl implements DemoServiceProvider {
+    private static final Logger logger = LoggerFactory.getLogger(DemoServiceProviderImpl.class);
 
     @Override
-    public String sayHello(String name) {
+    public String sayHelloProvider(String name) {
         logger.info("Hello " + name + ", request from consumer: " + RpcContext.getContext().getRemoteAddress());
         return "Hello " + name + ", response from provider: " + RpcContext.getContext().getLocalAddress();
+
     }
 
     @Override
-    public CompletableFuture<String> sayHelloAsync(String name) {
+    public CompletableFuture<String> sayHelloAsyncProvider(String name) {
         return null;
     }
-
 }
