@@ -408,7 +408,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
             }
             // 如果只有一个注册中心，则直接调用refer方法
             if (urls.size() == 1) {
-                // 调用 RegistryProtocol 的 refer 构建 Invoker 实例
+                // 调用 DubboProtocol对象，创建DubboInvoker
                 invoker = REF_PROTOCOL.refer(interfaceClass, urls.get(0));
             } else {
                 List<Invoker<?>> invokers = new ArrayList<Invoker<?>>();
@@ -446,7 +446,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
         URL consumerURL = new URL(CONSUMER_PROTOCOL, map.get(REGISTER_IP_KEY), 0, map.get(INTERFACE_KEY), map);
         MetadataUtils.publishServiceDefinition(consumerURL);
 
-        // create service proxy
+        // 通过代理工厂获取 代理对象    invoker->MigrationInvoker
         return (T) PROXY_FACTORY.getProxy(invoker, ProtocolUtils.isGeneric(generic));
     }
 

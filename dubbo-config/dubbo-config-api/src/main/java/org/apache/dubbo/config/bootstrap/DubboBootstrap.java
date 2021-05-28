@@ -539,7 +539,7 @@ public class DubboBootstrap extends GenericEventListener {
             logger.info(NAME + " has been initialized!");
             logger.info(NAME +"."+configManager + ":" + JSON.toJSONString(configManager));
         }
-        System.out.println("***"+JSON.toJSONString(configManager));
+        System.out.println("处理为初始化配置类，数据赋值-->"+JSON.toJSONString(configManager));
 
 
     }
@@ -608,7 +608,7 @@ public class DubboBootstrap extends GenericEventListener {
 
         Collection<ConfigCenterConfig> configCenters = configManager.getConfigCenters();
 
-        // check Config Center
+        // check Config Center  检查ConfigCenterConfig
         if (CollectionUtils.isEmpty(configCenters)) {
             ConfigCenterConfig configCenterConfig = new ConfigCenterConfig();
             configCenterConfig.refresh();
@@ -891,11 +891,9 @@ public class DubboBootstrap extends GenericEventListener {
             if (logger.isInfoEnabled()) {
                 logger.info(NAME + " is starting...");
             }
-            // 1. export Dubbo Services
-            // 组装url
+            // 发布到注册中心，启动服务端
             exportServices();
 
-            // Not only provider register
             // 注册到注册中心
             if (!isOnlyRegisterProvider() || hasExportedServices()) {
                 // 2. export MetadataService
@@ -1084,7 +1082,7 @@ public class DubboBootstrap extends GenericEventListener {
             ServiceConfig serviceConfig = (ServiceConfig) sc;
             serviceConfig.setBootstrap(this);
 
-            if (exportAsync) {
+            if (exportAsync) {// 异步
                 ExecutorService executor = executorRepository.getServiceExporterExecutor();
                 Future<?> future = executor.submit(() -> {
                     sc.export();

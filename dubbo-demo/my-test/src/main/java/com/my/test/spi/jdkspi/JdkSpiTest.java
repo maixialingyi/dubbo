@@ -4,6 +4,7 @@ import sun.misc.Service;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class JdkSpiTest {
 
@@ -33,5 +34,12 @@ public class JdkSpiTest {
             iJdbc.getDriver();
         }
 
+        ConcurrentHashMap map = new ConcurrentHashMap();
+
+        int arr[] = {1,2,3};
+        for(int[] i = arr;;){
+            System.out.println(i);
+        }
     }
+
 }

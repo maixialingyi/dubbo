@@ -386,7 +386,7 @@ public class DubboProtocol extends AbstractProtocol {
 
         ExchangeServer server;
         try {
-            //// 启动服务器
+            //// 启动服务器 返回HeaderExchanger
             server = Exchangers.bind(url, requestHandler);
         } catch (RemotingException e) {
             throw new RpcException("Fail to start server(url: " + url + ") " + e.getMessage(), e);

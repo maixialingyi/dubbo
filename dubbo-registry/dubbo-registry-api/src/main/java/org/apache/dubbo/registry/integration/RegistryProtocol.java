@@ -208,12 +208,13 @@ public class RegistryProtocol implements Protocol {
         //export invoker
         final ExporterChangeableWrapper<T> exporter = doLocalExport(originInvoker, providerUrl);
 
-        // url to registry
+        // url to registry 获取注册对象
         final Registry registry = getRegistry(registryUrl);
         final URL registeredProviderUrl = getUrlToRegistry(providerUrl, registryUrl);
 
         // decide if we need to delay publish
         boolean register = providerUrl.getParameter(REGISTER_KEY, true);
+        // 注册到注册中心
         if (register) {
             register(registry, registeredProviderUrl);
         }

@@ -69,6 +69,7 @@ public class InvokerInvocationHandler implements InvocationHandler {
         } else if (parameterTypes.length == 1 && "equals".equals(methodName)) {
             return invoker.equals(args[0]);
         }
+
         RpcInvocation rpcInvocation = new RpcInvocation(method, invoker.getInterface().getName(), protocolServiceKey, args);
         String serviceKey = url.getServiceKey();
         rpcInvocation.setTargetServiceUniqueName(serviceKey);
@@ -80,7 +81,7 @@ public class InvokerInvocationHandler implements InvocationHandler {
             rpcInvocation.put(Constants.CONSUMER_MODEL, consumerModel);
             rpcInvocation.put(Constants.METHOD_MODEL, consumerModel.getMethodModel(method));
         }
-        //调用AbstractClusterInvoker
+        //调用AbstractInvoker  Dubboinvoker
         return invoker.invoke(rpcInvocation).recreate();
     }
 }

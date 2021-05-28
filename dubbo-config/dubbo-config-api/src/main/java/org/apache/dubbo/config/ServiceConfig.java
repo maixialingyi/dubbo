@@ -299,7 +299,6 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
 
     protected synchronized void doExport() {
-        System.out.println("ServiceConfig doExport()");
         // 如果调用不暴露的方法，则unexported值为true
         if (unexported) {
             throw new IllegalStateException("The service " + interfaceClass.getName() + " has already unexported!");
@@ -463,7 +462,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         String host = findConfigedHosts(protocolConfig, registryURLs, map);
         Integer port = findConfigedPorts(protocolConfig, name, map);
         URL url = new URL(name, host, port, getContextPath(protocolConfig).map(p -> p + "/" + path).orElse(path), map);
-
+        System.out.println("url --> "+JSON.toJSONString(url));
 
         // —————————————————————————————————————服务暴露——————————————————————————————————————
 
@@ -497,7 +496,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                         }
                         // 添加dynamic配置
                         url = url.addParameterIfAbsent(DYNAMIC_KEY, registryURL.getParameter(DYNAMIC_KEY));
-                        // 加载监视器链接
+                        // 加载监控
                         URL monitorUrl = ConfigValidationUtils.loadMonitor(this, registryURL);
                         if (monitorUrl != null) {
                             // 添加监视器配置
@@ -522,7 +521,8 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                         Invoker<?> invoker = PROXY_FACTORY.getInvoker(ref, (Class) interfaceClass, registryURL.putAttribute(EXPORT_KEY, url));
                         // DelegateProviderMetaDataInvoker 用于持有 Invoker 和 ServiceConfig
                         DelegateProviderMetaDataInvoker wrapperInvoker = new DelegateProviderMetaDataInvoker(invoker, this);
-                        // 暴露服务，并且生成Exporter
+                        // 执行过滤器ProtocolFilterWrapper注册
+                        // DubboProtocol 创建服务端
                         Exporter<?> exporter = PROTOCOL.export(wrapperInvoker);
                         exporters.add(exporter);
                     }
