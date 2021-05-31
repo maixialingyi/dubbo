@@ -36,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * NettyHandler
+ * 客户通道共享的处理器（请参阅Netty的通道处理器模型），转换Netty的通道事件到Dubbo事件
  */
 @Sharable
 public class NettyHandler extends SimpleChannelHandler {

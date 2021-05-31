@@ -72,6 +72,9 @@ final class NettyCodecAdapter {
         return decoder;
     }
 
+    /**
+     * 扩展netty , 负责TCP层协议的解析，处理TCP粘包
+     */
     @Sharable
     private class InternalEncoder extends OneToOneEncoder {
 
@@ -88,7 +91,9 @@ final class NettyCodecAdapter {
             return ChannelBuffers.wrappedBuffer(buffer.toByteBuffer());
         }
     }
-
+    /**
+     * 扩展netty , 负责TCP层协议的解析，处理TCP粘包
+     */
     private class InternalDecoder extends SimpleChannelUpstreamHandler {
 
         private org.apache.dubbo.remoting.buffer.ChannelBuffer buffer =

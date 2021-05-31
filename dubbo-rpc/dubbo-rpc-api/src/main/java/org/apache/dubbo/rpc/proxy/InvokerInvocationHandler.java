@@ -81,7 +81,7 @@ public class InvokerInvocationHandler implements InvocationHandler {
             rpcInvocation.put(Constants.CONSUMER_MODEL, consumerModel);
             rpcInvocation.put(Constants.METHOD_MODEL, consumerModel.getMethodModel(method));
         }
-        //调用AbstractInvoker  Dubboinvoker
+        //org.apache.dubbo.registry.client.migration.MigrationInvoker
         return invoker.invoke(rpcInvocation).recreate();
     }
 }
