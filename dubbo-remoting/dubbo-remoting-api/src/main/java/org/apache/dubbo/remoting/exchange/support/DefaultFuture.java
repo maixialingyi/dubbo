@@ -220,6 +220,7 @@ public class DefaultFuture extends CompletableFuture<Object> {
         }
         //结束线程
         if (res.getStatus() == Response.OK) {
+            // 设置返回结果，get()获取
             this.complete(res.getResult());
             //异常结束
         } else if (res.getStatus() == Response.CLIENT_TIMEOUT || res.getStatus() == Response.SERVER_TIMEOUT) {

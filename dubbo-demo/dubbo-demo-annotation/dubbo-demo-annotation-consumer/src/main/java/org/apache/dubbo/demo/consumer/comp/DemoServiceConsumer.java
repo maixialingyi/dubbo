@@ -17,6 +17,7 @@
 package org.apache.dubbo.demo.consumer.comp;
 
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.dubbo.demo.DemoService;
 import org.apache.dubbo.demo.DemoServiceProvider;
 import org.springframework.stereotype.Component;
@@ -25,10 +26,10 @@ import java.util.concurrent.CompletableFuture;
 
 @Component("demoServiceConsumer")
 public class DemoServiceConsumer {
-    @DubboReference
+    @DubboReference(timeout = 100000000)
     private DemoServiceProvider demoServiceProvider;
 
-    @DubboReference
+    @DubboReference(version = "1.0.1",group = "ceshi")
     private DemoService demoService;
 
     public String sayHelloConsumer(String name) {

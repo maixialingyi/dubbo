@@ -205,7 +205,7 @@ public class RegistryProtocol implements Protocol {
         overrideListeners.put(overrideSubscribeUrl, overrideSubscribeListener);
 
         providerUrl = overrideUrlWithConfig(providerUrl, overrideSubscribeListener);
-        //export invoker
+        //export invoker  DubboProtocal 服务启动
         final ExporterChangeableWrapper<T> exporter = doLocalExport(originInvoker, providerUrl);
 
         // url to registry 获取注册对象
@@ -226,7 +226,7 @@ public class RegistryProtocol implements Protocol {
         exporter.setRegisterUrl(registeredProviderUrl);
         exporter.setSubscribeUrl(overrideSubscribeUrl);
 
-        // Deprecated! Subscribe to override rules in 2.6.x or before.
+        // Deprecated! Subscribe to override rules in 2.6.x or before. 订阅url并监听数据变化
         registry.subscribe(overrideSubscribeUrl, overrideSubscribeListener);
 
         notifyExport(exporter);

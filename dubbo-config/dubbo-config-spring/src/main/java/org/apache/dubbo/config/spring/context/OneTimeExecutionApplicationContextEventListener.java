@@ -43,7 +43,6 @@ abstract class OneTimeExecutionApplicationContextEventListener implements Applic
      * @param event
      */
     public final void onApplicationEvent(ApplicationEvent event) {
-        System.out.println("OneTimeExecutionApplicationContextEventListener onApplicationEvent()");
         if (isOriginalEventSource(event) && event instanceof ApplicationContextEvent) {
             onApplicationContextEvent((ApplicationContextEvent) event);
         }

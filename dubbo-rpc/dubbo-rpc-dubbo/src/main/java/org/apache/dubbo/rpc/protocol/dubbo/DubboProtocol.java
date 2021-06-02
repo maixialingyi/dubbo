@@ -456,7 +456,7 @@ public class DubboProtocol extends AbstractProtocol {
         // 序列化
         optimizeSerialization(url);
 
-        // create rpc invoker.   创建一个DubboInvoker对象
+        // create rpc invoker.   创建一个DubboInvoker对象                 获取client
         DubboInvoker<T> invoker = new DubboInvoker<T>(serviceType, url, getClients(url), invokers);
         invokers.add(invoker);
 
@@ -475,6 +475,7 @@ public class DubboProtocol extends AbstractProtocol {
         int connections = url.getParameter(CONNECTIONS_KEY, 0);
         List<ReferenceCountExchangeClient> shareClients = null;
         // if not configured, connection is shared, otherwise, one connection for one service
+        // 如果未配置，则共享连接，否则，一个服务一个连接
         if (connections == 0) {
             useShareConnect = true;
 
@@ -484,6 +485,7 @@ public class DubboProtocol extends AbstractProtocol {
             String shareConnectionsStr = url.getParameter(SHARE_CONNECTIONS_KEY, (String) null);
             connections = Integer.parseInt(StringUtils.isBlank(shareConnectionsStr) ? ConfigUtils.getProperty(SHARE_CONNECTIONS_KEY,
                     DEFAULT_SHARE_CONNECTIONS) : shareConnectionsStr);
+            //获取共享连接
             shareClients = getSharedClient(url, connections);
         }
 

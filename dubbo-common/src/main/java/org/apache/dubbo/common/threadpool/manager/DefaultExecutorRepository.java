@@ -85,6 +85,7 @@ public class DefaultExecutorRepository implements ExecutorRepository {
         }
         Map<Integer, ExecutorService> executors = data.computeIfAbsent(componentKey, k -> new ConcurrentHashMap<>());
         Integer portKey = url.getPort();
+                                                                          //创建线程池
         ExecutorService executor = executors.computeIfAbsent(portKey, k -> createExecutor(url));
         // If executor has been shut down, create a new one
         if (executor.isShutdown() || executor.isTerminated()) {

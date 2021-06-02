@@ -181,7 +181,7 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
             asyncResult = AsyncRpcResult.newDefaultAsyncResult(null, e, invocation);
         }
         RpcContext.getContext().setFuture(new FutureAdapter(asyncResult.getResponseFuture()));
-
+        //如果为同步调用则等待调用结果
         waitForResultIfSync(asyncResult, invocation);
         return asyncResult;
     }

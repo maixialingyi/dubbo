@@ -56,6 +56,7 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
     private ExecutorRepository executorRepository = ExtensionLoader.getExtensionLoader(ExecutorRepository.class).getDefaultExtension();
 
     public AbstractServer(URL url, ChannelHandler handler) throws RemotingException {
+        //初始化 编解码器Codec2 调用超时时间  连接超时时间
         super(url, handler);
         // 从url中获得本地地址
         localAddress = getUrl().toInetSocketAddress();
