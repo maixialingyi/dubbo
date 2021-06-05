@@ -20,6 +20,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.dubbo.demo.DemoService;
 import org.apache.dubbo.demo.DemoServiceProvider;
+import org.apache.dubbo.demo.OneWayProvider;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
@@ -32,6 +33,14 @@ public class DemoServiceConsumer {
     @DubboReference(version = "1.0.1",group = "ceshi")
     private DemoService demoService;
 
+    @DubboReference
+    private OneWayProvider oneWayProvider;
+
+    public void oneWayTest(int age) {
+        oneWayProvider.oneWayTest(age);
+    }
+
+    //双向同步调用
     public String sayHelloConsumer(String name) {
         return demoServiceProvider.sayHelloProvider(name);
     }

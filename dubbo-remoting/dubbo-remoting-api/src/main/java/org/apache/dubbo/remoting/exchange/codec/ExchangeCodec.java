@@ -55,8 +55,8 @@ import java.io.InputStream;
  * 19-23位：Serialization 编号
  * 24-31位：status状态
  * 32-95位：id编号
- * 96-127位：body数据
- * 128-…位：上图表格内的数据
+ * 96-127位：body数据长度
+ * 128-…位：body 数据
  */
 public class ExchangeCodec extends TelnetCodec {
 

@@ -85,14 +85,14 @@ public class ThreadlessExecutor extends AbstractExecutorService {
         if (finished) {
             return;
         }
-
+        // 阻塞获取，直到返回
         Runnable runnable = queue.take();
 
         synchronized (lock) {
             waiting = false;
             runnable.run();
         }
-
+        //队列为空，返回null
         runnable = queue.poll();
         while (runnable != null) {
             try {
@@ -132,9 +132,9 @@ public class ThreadlessExecutor extends AbstractExecutorService {
     @Override
     public void execute(Runnable runnable) {
         synchronized (lock) {
-            if (!waiting) {
+            if (!waiting) { // 放入共享线程池执行
                 sharedExecutor.execute(runnable);
-            } else {
+            } else {  //放入等待队列
                 queue.add(runnable);
             }
         }

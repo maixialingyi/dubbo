@@ -23,6 +23,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
+import java.util.concurrent.CompletableFuture;
+
 public class Application {
     /**
      * In order to make sure multicast registry works, need to specify '-Djava.net.preferIPv4Stack=true' before
@@ -32,8 +34,12 @@ public class Application {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ConsumerConfiguration.class);
         context.start();
         DemoServiceConsumer demoServiceConsumer = context.getBean("demoServiceConsumer", DemoServiceConsumer.class);
-        String hello = demoServiceConsumer.sayHelloConsumer("world");
-        System.out.println("result :" + hello);
+        //双向同步调用
+        //String hello = demoServiceConsumer.sayHelloConsumer("world");
+        //System.out.println("result :" + hello);
+        //单向
+        demoServiceConsumer.oneWayTest(1);
+
     }
 
     @Configuration

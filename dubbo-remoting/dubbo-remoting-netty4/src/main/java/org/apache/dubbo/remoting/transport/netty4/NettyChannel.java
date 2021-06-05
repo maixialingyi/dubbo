@@ -42,7 +42,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.TIMEOUT_KEY;
 final class NettyChannel extends AbstractChannel {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyChannel.class);
-    /**
+    /**CompletableFuture
      * the cache for netty channel and dubbo channel
      */
     private static final ConcurrentMap<Channel, NettyChannel> CHANNEL_MAP = new ConcurrentHashMap<Channel, NettyChannel>();
