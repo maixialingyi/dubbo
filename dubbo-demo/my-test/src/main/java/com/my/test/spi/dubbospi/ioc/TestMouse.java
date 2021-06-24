@@ -8,13 +8,7 @@ public class TestMouse {
         ExtensionLoader<Mouse> extensionLoader = ExtensionLoader.getExtensionLoader(Mouse.class);
 
         //通过映射名获取指定扩展点
-        Mouse mouse = extensionLoader.getExtension("sunXingMouse");
+        Mouse mouse = extensionLoader.getExtension("xiaomiMouse");
         mouse.showMouseName(null);
-
-        /*ExtensionLoader<Computer> extensionLoader = ExtensionLoader.getExtensionLoader(Computer.class);
-
-        //通过映射名获取指定扩展点
-        Computer computer = extensionLoader.getExtension("sunXingComputer");
-        computer.showComputerName(null);*/
     }
 }

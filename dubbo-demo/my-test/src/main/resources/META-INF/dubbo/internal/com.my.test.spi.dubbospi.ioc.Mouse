@@ -1,1 +1,2 @@
 sunXingMouse=com.my.test.spi.dubbospi.ioc.SunXingMouse
+xiaomiMouse=com.my.test.spi.dubbospi.ioc.XiaomiMouse
