@@ -10,12 +10,14 @@ public class TestDubboIoc {
         URL url = new URL("http","127.0.0.1",8080);
 
         //使用默认依赖
-        Computer computer = extensionLoader.getDefaultExtension();
+        Computer computer = extensionLoader.getExtension("computerSunXing");
         computer.showComputerName(url);
 
         //使用指定依赖
-        url = url.addParameter("mouse","mouseXiaomi");
+        /*url = url.addParameter("mouse","mouseXiaomi");
         Computer computer2 = extensionLoader.getDefaultExtension();
         computer.showComputerName(url);
+
+        extensionLoader.getAdaptiveExtension();*/
     }
 }
