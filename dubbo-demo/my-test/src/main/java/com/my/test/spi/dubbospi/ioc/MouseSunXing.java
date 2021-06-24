@@ -2,9 +2,9 @@ package com.my.test.spi.dubbospi.ioc;
 
 import org.apache.dubbo.common.URL;
 
-public class XiaomiMouse implements Mouse{
+public class MouseSunXing implements Mouse{
     @Override
     public void showMouseName(URL url) {
-        System.out.println("XiaomiMouse");
+        System.out.println("MouseSunXing");
     }
 }

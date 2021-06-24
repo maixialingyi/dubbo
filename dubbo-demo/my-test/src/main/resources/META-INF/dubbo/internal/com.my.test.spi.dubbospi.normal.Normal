@@ -1,0 +1,4 @@
+sunNormal1=com.my.test.spi.dubbospi.normal.SunNormal1
+sunNormal2=com.my.test.spi.dubbospi.normal.SunNormal2
+com.my.test.spi.dubbospi.normal.NormalAOP1
+com.my.test.spi.dubbospi.normal.NormalAOP2

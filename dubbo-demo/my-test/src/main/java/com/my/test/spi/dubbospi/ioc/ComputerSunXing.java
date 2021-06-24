@@ -3,7 +3,7 @@ package com.my.test.spi.dubbospi.ioc;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.DisableInject;
 
-public class SunXingComputer implements Computer{
+public class ComputerSunXing implements Computer{
 
     private Mouse mouse;
 
@@ -16,6 +16,6 @@ public class SunXingComputer implements Computer{
     @Override
     public void showComputerName(URL url) {
         mouse.showMouseName(url);
-        System.out.println("SunXingComputer");
+        System.out.println("ComputerSunXing");
     }
 }

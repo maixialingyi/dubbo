@@ -8,10 +8,14 @@ public class TestDubboIoc {
         ExtensionLoader<Computer> extensionLoader = ExtensionLoader.getExtensionLoader(Computer.class);
 
         URL url = new URL("http","127.0.0.1",8080);
-        //url = url.addParameter("mouse","xiaomiMouse");
 
-        //通过映射名获取指定扩展点
-        Computer computer = extensionLoader.getExtension("sunXingComputer");
+        //使用默认依赖
+        Computer computer = extensionLoader.getDefaultExtension();
+        computer.showComputerName(url);
+
+        //使用指定依赖
+        url = url.addParameter("mouse","mouseXiaomi");
+        Computer computer2 = extensionLoader.getDefaultExtension();
         computer.showComputerName(url);
     }
 }
