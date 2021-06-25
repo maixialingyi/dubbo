@@ -3,6 +3,9 @@ package com.my.test.spi.dubbospi.normal;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.ExtensionLoader;
 
+/**
+ * https://zhuanlan.zhihu.com/p/87075689
+ */
 public class TestSpiNormal {
     public static void main(String[] args) {
         ExtensionLoader<Normal> extensionLoader = ExtensionLoader.getExtensionLoader(Normal.class);
